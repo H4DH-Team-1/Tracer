@@ -2,11 +2,11 @@
 
 namespace identify_face
 {
-    class Program
+  class Program
+  {
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Running");
-        }
+      Console.WriteLine("Running");
     }
+  }
 }
