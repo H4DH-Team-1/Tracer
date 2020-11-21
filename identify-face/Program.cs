@@ -26,7 +26,8 @@ namespace identify_face
 
       IFaceClient client = Authenticate(configCognitiveEndpoint, configCognitiveSubscriptionKey);
 
-      await DetectFaceExtract(client, faceBaseImageUrl, RECOGNITION_MODEL);
+      //await DetectFaceExtract(client, faceBaseImageUrl, RECOGNITION_MODEL);
+      await FindSimilar(client, faceBaseImageUrl, RECOGNITION_MODEL);
     }
 
     public static IFaceClient Authenticate(string endpoint, string key)
@@ -62,6 +63,38 @@ namespace identify_face
         }
 
       }
+    }
+
+    public static async Task FindSimilar(IFaceClient client, string baseUrl, string recognitionModel)
+    {
+      var targetImageFileNames = new List<string>{$"{baseUrl}mouthonly.jpg", $"{baseUrl}full.jpg"};
+
+      string sourceImageFileName = $"{baseUrl}normal.jpg";
+      IList<Guid?> targetFaceIds = new List<Guid?>();
+      foreach (var targetImageFileName in targetImageFileNames)
+      {
+          var faces = await DetectFaceRecognize(client, targetImageFileName, recognitionModel);
+          if (faces.Count == 1)
+          {
+            targetFaceIds.Add(faces.First().FaceId.Value);
+          }
+          else
+          {
+            Console.WriteLine($"WARNING: NO FACE FOUND IN IMAGE {targetImageFileName}");
+          }
+          
+      }
+
+      IList<DetectedFace> detectedFaces = await DetectFaceRecognize(client, sourceImageFileName, recognitionModel);
+
+      var similarResults = await client.Face.FindSimilarAsync(detectedFaces[0].FaceId.Value, null, null, targetFaceIds);
+      Console.WriteLine($"Found {similarResults.Count} similar results: {JsonSerializer.Serialize(similarResults)}");
+    }
+
+    private static async Task<List<DetectedFace>> DetectFaceRecognize(IFaceClient client, string imageUrl, string recognitionModel)
+    {
+      IList<DetectedFace> detectedFaces = await client.Face.DetectWithUrlAsync(imageUrl, recognitionModel: recognitionModel, detectionModel: DetectionModel.Detection02);
+      return detectedFaces.ToList();
     }
   }
 }
