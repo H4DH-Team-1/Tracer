@@ -1,2 +1,2 @@
 # Tracer
-Allows us to capture details, image and equipment to track later
+Allows us to manage captured details
