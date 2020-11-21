@@ -5,6 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 
@@ -34,7 +37,7 @@ namespace identify_face
     public static async Task DetectFaceExtract(IFaceClient client, string baseUrl, string recognitionModel)
     {
       //TODO: get all images from blob
-      var imageFileNames = new List<string>{$"{baseUrl}profile.jpg"};
+      var imageFileNames = new List<string>{$"{baseUrl}normal.jpg", $"{baseUrl}mouthonly.jpg", $"{baseUrl}full.jpg"};
 
       foreach (var imageFileName in imageFileNames)
       {
@@ -52,6 +55,12 @@ namespace identify_face
           recognitionModel: recognitionModel);
 
         Console.WriteLine($"{detectedFaces.Count} face(s) detected from image `{imageFileName}`.");
+        if (detectedFaces.Any())
+        {
+          var firstFace = detectedFaces.First();
+          Console.WriteLine($"We got ya face! `{firstFace.FaceId}`!  Attributes: {JsonSerializer.Serialize(firstFace.FaceAttributes)}.  Landmarks: {JsonSerializer.Serialize(firstFace.FaceLandmarks)}");
+        }
+
       }
     }
   }
