@@ -6,7 +6,7 @@ https://telstrahealth.com/H4DH - 2020, Team 1.
 This is a sample web app to demo what a central management app might look like.
 
 ### Prereqs
-Follow this tutorial: https://www.freecodecamp.org/news/ultimate-guide-to-aws-amplify-and-reacxt/
+Follow this tutorial: https://docs.amplify.aws/start/getting-started/setup/q/integration/react
 
 ### Deploying
 
