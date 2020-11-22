@@ -15,10 +15,24 @@
           "additionalAuthenticationProviders": []
         }
       }
+    },
+    "newtHackCheckin": {
+      "service": "API Gateway",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [
+        {
+          "category": "function",
+          "resourceName": "newtHackCreateCheckin",
+          "attributes": [
+            "Name",
+            "Arn"
+          ]
+        }
+      ]
     }
   },
   "function": {
-    "performCheckin": {
+    "newtHackCreateCheckin": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda",

@@ -28,7 +28,7 @@ app.use(function(req, res, next) {
   next()
 });
 
-app.post('/item', function(req, res) {
+app.post('/checkin', function(req, res) {
   // Add your code here
   res.json({success: 'post call succeed!', url: req.url, body: req.body})
 });

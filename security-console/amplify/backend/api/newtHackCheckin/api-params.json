@@ -1,0 +1,35 @@
+{
+    "paths": [
+        {
+            "name": "/checkin",
+            "lambdaFunction": "newtHackCreateCheckin",
+            "privacy": {
+                "open": true
+            },
+            "policyResourceName": "/checkin"
+        }
+    ],
+    "resourceName": "newtHackCheckin",
+    "apiName": "newtHackCheckin",
+    "functionArns": [
+        {
+            "lambdaFunction": "newtHackCreateCheckin"
+        }
+    ],
+    "privacy": {
+        "auth": 0,
+        "unauth": 0,
+        "authRoleName": "amplify-newthackathonsec-dev-111926-authRole",
+        "unAuthRoleName": "amplify-newthackathonsec-dev-111926-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "newtHackCreateCheckin",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}

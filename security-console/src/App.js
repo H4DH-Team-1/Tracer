@@ -43,7 +43,7 @@ const App = () => {
 
   return (
     <div style={styles.container}>
-      <h2>Checkins</h2>
+      <h2>Active Checkins:</h2>
       <input
         onChange={event => setInput('name', event.target.value)}
         style={styles.input}

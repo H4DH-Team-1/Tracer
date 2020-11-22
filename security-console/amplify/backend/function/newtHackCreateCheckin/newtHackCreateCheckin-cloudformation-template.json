@@ -33,12 +33,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "performCheckin",
+            "newtHackCreateCheckin",
             {
               "Fn::Join": [
                 "",
                 [
-                  "performCheckin",
+                  "newtHackCreateCheckin",
                   "-",
                   {
                     "Ref": "env"
@@ -69,7 +69,7 @@
         "Timeout": "25",
         "Code": {
           "S3Bucket": "amplify-newthackathonsec-dev-111926-deployment",
-          "S3Key": "amplify-builds/performCheckin-6e4a5759562f34677a79-build.zip"
+          "S3Key": "amplify-builds/newtHackCreateCheckin-496e7548384d3268376b-build.zip"
         }
       }
     },
@@ -79,12 +79,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "newthackathonsecLambdaRole2437f66e",
+            "newthackathonsecLambdaRole5b14f51d",
             {
               "Fn::Join": [
                 "",
                 [
-                  "newthackathonsecLambdaRole2437f66e",
+                  "newthackathonsecLambdaRole5b14f51d",
                   "-",
                   {
                     "Ref": "env"
