@@ -1,0 +1,21 @@
+type Checkin @model {
+  id: ID!
+  name: String!
+  phone: String!
+  postcode: String!
+  photo: S3Object!
+  movements: [Movement] @connection(keyName: "movement", fields: ["id"])
+}
+
+type Movement @model @key(name: "movement", fields: ["checkinID"]) {
+  id: ID!
+  title: String!
+  checkinID: ID!
+  checkin: Checkin @connection(fields: ["checkinID"])
+}
+
+type S3Object {
+  bucket: String!
+  region: String!
+  key: String!
+}

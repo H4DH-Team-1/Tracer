@@ -7,6 +7,7 @@ This is a sample web app to demo what a central management app might look like.
 
 ### Prereqs
 Follow this tutorial: https://docs.amplify.aws/start/getting-started/setup/q/integration/react
+(This was also useful: https://dev.to/dabit3/graphql-tutorial-how-to-manage-image-file-uploads-downloads-with-aws-appsync-aws-amplify-hga)
 
 ### Deploying
 
