@@ -8,6 +8,7 @@ export const getCheckin = /* GraphQL */ `
       name
       phone
       postcode
+      maskId
       photo {
         bucket
         region
@@ -40,6 +41,7 @@ export const listCheckins = /* GraphQL */ `
         name
         phone
         postcode
+        maskId
         photo {
           bucket
           region
@@ -66,6 +68,7 @@ export const getMovement = /* GraphQL */ `
         name
         phone
         postcode
+        maskId
         photo {
           bucket
           region
@@ -98,6 +101,7 @@ export const listMovements = /* GraphQL */ `
           name
           phone
           postcode
+          maskId
           createdAt
           updatedAt
         }

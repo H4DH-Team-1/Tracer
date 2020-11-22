@@ -3,6 +3,7 @@ type Checkin @model {
   name: String!
   phone: String!
   postcode: String!
+  maskId: String!
   photo: S3Object!
   movements: [Movement] @connection(keyName: "movement", fields: ["id"])
 }

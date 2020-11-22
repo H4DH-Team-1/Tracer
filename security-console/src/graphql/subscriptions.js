@@ -8,6 +8,7 @@ export const onCreateCheckin = /* GraphQL */ `
       name
       phone
       postcode
+      maskId
       photo {
         bucket
         region
@@ -35,6 +36,7 @@ export const onUpdateCheckin = /* GraphQL */ `
       name
       phone
       postcode
+      maskId
       photo {
         bucket
         region
@@ -62,6 +64,7 @@ export const onDeleteCheckin = /* GraphQL */ `
       name
       phone
       postcode
+      maskId
       photo {
         bucket
         region
@@ -93,6 +96,7 @@ export const onCreateMovement = /* GraphQL */ `
         name
         phone
         postcode
+        maskId
         photo {
           bucket
           region
@@ -120,6 +124,7 @@ export const onUpdateMovement = /* GraphQL */ `
         name
         phone
         postcode
+        maskId
         photo {
           bucket
           region
@@ -147,6 +152,7 @@ export const onDeleteMovement = /* GraphQL */ `
         name
         phone
         postcode
+        maskId
         photo {
           bucket
           region

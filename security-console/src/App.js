@@ -7,43 +7,43 @@ import { listCheckins } from './graphql/queries'
 import awsExports from "./aws-exports";
 Amplify.configure(awsExports);
 
-const initialState = { name: '', description: '' }
+const initialState = { name: '', phone: '', postcode: '', maskId: '' }
 
 const App = () => {
   const [formState, setFormState] = useState(initialState)
-  const [todos, setTodos] = useState([])
+  const [checkins, setCheckins] = useState([])
 
   useEffect(() => {
-    fetchTodos()
+    fetchCheckins()
   }, [])
 
   function setInput(key, value) {
     setFormState({ ...formState, [key]: value })
   }
 
-  async function fetchTodos() {
+  async function fetchCheckins() {
     try {
-      const todoData = await API.graphql(graphqlOperation(listTodos))
-      const todos = todoData.data.listTodos.items
-      setTodos(todos)
-    } catch (err) { console.log('error fetching todos') }
+      const checkinData = await API.graphql(graphqlOperation(listCheckins))
+      const retrievedCheckins = checkinData.data.listCheckins.items
+      setCheckins(retrievedCheckins)
+    } catch (err) { console.log('error fetching checkins') }
   }
 
-  async function addTodo() {
+  async function addCheckin() {
     try {
-      if (!formState.name || !formState.description) return
-      const todo = { ...formState }
-      setTodos([...todos, todo])
+      if (!formState.name || !formState.phone || !formState.postcode || !formState.maskId) return
+      const checkin = { ...formState }
+      setCheckins([...checkins, checkin])
       setFormState(initialState)
-      await API.graphql(graphqlOperation(createTodo, {input: todo}))
+      await API.graphql(graphqlOperation(createCheckin, {input: checkin}))
     } catch (err) {
-      console.log('error creating todo:', err)
+      console.log('error creating checkin:', err)
     }
   }
 
   return (
     <div style={styles.container}>
-      <h2>Amplify Todos</h2>
+      <h2>Checkins</h2>
       <input
         onChange={event => setInput('name', event.target.value)}
         style={styles.input}
@@ -51,17 +51,31 @@ const App = () => {
         placeholder="Name"
       />
       <input
-        onChange={event => setInput('description', event.target.value)}
+        onChange={event => setInput('phone', event.target.value)}
         style={styles.input}
-        value={formState.description}
-        placeholder="Description"
+        value={formState.phone}
+        placeholder="Phone"
       />
-      <button style={styles.button} onClick={addTodo}>Create Todo</button>
+      <input
+        onChange={event => setInput('postcode', event.target.value)}
+        style={styles.input}
+        value={formState.postcode}
+        placeholder="Postcode"
+      />
+      <input
+        onChange={event => setInput('maskId', event.target.value)}
+        style={styles.input}
+        value={formState.maskId}
+        placeholder="Mask ID"
+      />
+      <button style={styles.button} onClick={addCheckin}>Create Checkin</button>
       {
-        todos.map((todo, index) => (
-          <div key={todo.id ? todo.id : index} style={styles.todo}>
-            <p style={styles.todoName}>{todo.name}</p>
-            <p style={styles.todoDescription}>{todo.description}</p>
+        checkins.map((checkin, index) => (
+          <div key={checkin.id ? checkin.id : index} style={styles.checkin}>
+            <p style={styles.checkinName}>{checkin.name}</p>
+            <p style={styles.checkinDescription}>{checkin.phone}</p>
+            <p style={styles.checkinDescription}>{checkin.postcode}</p>
+            <p style={styles.checkinDescription}>{checkin.maskId}</p>
           </div>
         ))
       }
@@ -71,10 +85,10 @@ const App = () => {
 
 const styles = {
   container: { width: 400, margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 20 },
-  todo: {  marginBottom: 15 },
+  checkin: {  marginBottom: 15 },
   input: { border: 'none', backgroundColor: '#ddd', marginBottom: 10, padding: 8, fontSize: 18 },
-  todoName: { fontSize: 20, fontWeight: 'bold' },
-  todoDescription: { marginBottom: 0 },
+  checkinName: { fontSize: 20, fontWeight: 'bold' },
+  checkinDescription: { marginBottom: 0 },
   button: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '12px 0px' }
 }
 
