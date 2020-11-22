@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import Amplify, { API, graphqlOperation } from 'aws-amplify'
 import { createCheckin } from './graphql/mutations'
 import { listCheckins } from './graphql/queries'
+import Camera from './Camera'
 
 import awsExports from "./aws-exports";
 Amplify.configure(awsExports);
@@ -44,6 +45,19 @@ const App = () => {
   return (
     <div style={styles.container}>
       <h2>Active Checkins:</h2>
+      {
+        checkins.map((checkin, index) => (
+          <div key={checkin.id ? checkin.id : index} style={styles.checkin}>
+            <p style={styles.checkinName}>{checkin.name}</p>
+            <p style={styles.checkinDescription}>{checkin.phone}</p>
+            <p style={styles.checkinDescription}>{checkin.postcode}</p>
+            <p style={styles.checkinDescription}>{checkin.maskId}</p>
+          </div>
+        ))
+      }
+      <hr />
+      <h2>Create Checkin:</h2>
+      <h4>Checkins should happen from people's phones, but if a kiosk is required we could use this form:</h4>
       <input
         onChange={event => setInput('name', event.target.value)}
         style={styles.input}
@@ -68,24 +82,17 @@ const App = () => {
         value={formState.maskId}
         placeholder="Mask ID"
       />
+      <Camera maskId={formState.maskId}></Camera>
+      <br />
       <button style={styles.button} onClick={addCheckin}>Create Checkin</button>
-      {
-        checkins.map((checkin, index) => (
-          <div key={checkin.id ? checkin.id : index} style={styles.checkin}>
-            <p style={styles.checkinName}>{checkin.name}</p>
-            <p style={styles.checkinDescription}>{checkin.phone}</p>
-            <p style={styles.checkinDescription}>{checkin.postcode}</p>
-            <p style={styles.checkinDescription}>{checkin.maskId}</p>
-          </div>
-        ))
-      }
+      
     </div>
   )
 }
 
 const styles = {
   container: { width: 400, margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 20 },
-  checkin: {  marginBottom: 15 },
+  checkin: {  marginBottom: 15, border: '2px solid black' },
   input: { border: 'none', backgroundColor: '#ddd', marginBottom: 10, padding: 8, fontSize: 18 },
   checkinName: { fontSize: 20, fontWeight: 'bold' },
   checkinDescription: { marginBottom: 0 },
