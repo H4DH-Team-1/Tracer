@@ -2,9 +2,25 @@
 THIS IS A HACKATHON PROJECT - DO NOT USE AS PRODUCTION CODE!
 https://telstrahealth.com/H4DH - 2020, Team 1.
 
+## security-console
+This is a sample web app to demo what a central management app might look like.
 
-## Prereqs
+### Prereqs
+Follow this tutorial: https://www.freecodecamp.org/news/ultimate-guide-to-aws-amplify-and-reacxt/
 
+### Deploying
+
+Some general Amplify commands for reference:
+"amplify status" will show you what you've added already and if it's locally configured or deployed
+"amplify add <category>" will allow you to add features like user login or a backend API
+"amplify push" will build all your local backend resources and provision it in the cloud
+"amplify console" to open the Amplify Console and view your project status
+"amplify publish" will build all your local backend and frontend resources (if you have hosting category added) and provision it in the cloud
+
+## identify-face
+This is a dotnet core console app to test the Azure Cognitive Services functionality
+
+### Prereqs
 Install dotnet core https://dotnet.microsoft.com/download
 
 Set up an Azure subscription
