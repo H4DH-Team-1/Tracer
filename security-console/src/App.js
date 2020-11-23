@@ -1,26 +1,25 @@
 /* src/App.js */
 import React, { useEffect, useState } from 'react'
 import Amplify, { API, graphqlOperation } from 'aws-amplify'
-import { createCheckin } from './graphql/mutations'
 import { listCheckins } from './graphql/queries'
-import Camera from './Camera'
+import AddCheckin from './AddCheckin'
+import EditCheckin from './EditCheckin'
+import { createCheckin, deleteCheckin } from './graphql/mutations'
+import { updateCheckinBasicDetails } from './graphql/customMutations'
 
-import awsExports from "./aws-exports";
+import awsExports from './aws-exports';
 Amplify.configure(awsExports);
 
-const initialState = { name: '', phone: '', postcode: '', maskId: '' }
+const initialState = { id: null, name: '', phone: '', postcode: '', maskId: '' }
 
 const App = () => {
-  const [formState, setFormState] = useState(initialState)
+  const [editing, setEditing] = useState(false)
+  const [currentCheckin, setCurrentCheckin] = useState(initialState)
   const [checkins, setCheckins] = useState([])
 
   useEffect(() => {
     fetchCheckins()
   }, [])
-
-  function setInput(key, value) {
-    setFormState({ ...formState, [key]: value })
-  }
 
   async function fetchCheckins() {
     try {
@@ -30,73 +29,109 @@ const App = () => {
     } catch (err) { console.log('error fetching checkins') }
   }
 
-  async function addCheckin() {
+  async function saveAddCheckin(data) {
     try {
-      if (!formState.name || !formState.phone || !formState.postcode || !formState.maskId) return
-      const checkin = { ...formState }
-      setCheckins([...checkins, checkin])
-      setFormState(initialState)
-      await API.graphql(graphqlOperation(createCheckin, {input: checkin}))
+      if (!data.name || !data.phone || !data.postcode || !data.maskId)
+      {
+        console.log('INVALID ADD: ' + JSON.stringify(data))
+        return
+      }
+      data.id = null //ensure this is null when creating
+      const checkin = { ...data }
+      setCheckins([...checkins, data])
+      await API.graphql(graphqlOperation(createCheckin, {input: data}))
     } catch (err) {
       console.log('error creating checkin:', err)
     }
   }
 
+  async function prepareEditCheckin(checkin) {
+    setEditing(true)
+    setCurrentCheckin({ id: checkin.id, name: checkin.name, phone: checkin.phone, postcode: checkin.postcode, maskId: checkin.maskId })
+  }
+
+  async function saveEditCheckin(data) {
+    try {
+      if (!data.id || !data.name || !data.phone || !data.postcode || !data.maskId)
+      {
+        console.log('INVALID EDIT: ' + JSON.stringify(data))
+        return
+      }
+      const checkin = { ...data }
+      setCheckins(checkins.map(item => (item.id === data.id ? data : item)))
+      await API.graphql(graphqlOperation(updateCheckinBasicDetails, {input: data}))
+      setEditing(false)
+    } catch (err) {
+      console.log('error saving checkin:', err)
+    }
+  }
+
+  async function saveDeleteCheckin(data) {
+    try {
+      if (!data.id)
+      {
+        console.log('INVALID DELETE: ' + JSON.stringify(data))
+        return
+      }
+      const checkin = { id: data.id }
+      setCheckins(checkins.filter(item => item.id !== data.id))
+      await API.graphql(graphqlOperation(deleteCheckin, {input: checkin}))
+      setEditing(false)
+    } catch (err) {
+      console.log('error saving checkin:', err)
+    }
+  }
+
   return (
     <div style={styles.container}>
+      <h1>Mask Tracer<br />Security Console</h1>
       <h2>Active Checkins:</h2>
       {
         checkins.map((checkin, index) => (
           <div key={checkin.id ? checkin.id : index} style={styles.checkin}>
             <p style={styles.checkinName}>{checkin.name}</p>
-            <p style={styles.checkinDescription}>{checkin.phone}</p>
-            <p style={styles.checkinDescription}>{checkin.postcode}</p>
-            <p style={styles.checkinDescription}>{checkin.maskId}</p>
+            <p style={styles.checkinDescription}>Phone:     {checkin.phone}</p>
+            <p style={styles.checkinDescription}>Postcode:  {checkin.postcode}</p>
+            <p style={styles.checkinDescription}>Mask ID:   {checkin.maskId}</p>
+            <p style={styles.checkinDescription}>Has Photo? {checkin.photo ? 'Yes' : 'No'}</p>
+        { checkin.id ? null : <p style={styles.checkinDescriptionAlert}>PENDING SAVE!!!</p> }
+            <button style={styles.buttonAddEdit} onClick={() => prepareEditCheckin(checkin)}>Edit Checkin</button>
           </div>
         ))
       }
       <hr />
-      <h2>Create Checkin:</h2>
-      <h4>Checkins should happen from people's phones, but if a kiosk is required we could use this form:</h4>
-      <input
-        onChange={event => setInput('name', event.target.value)}
-        style={styles.input}
-        value={formState.name}
-        placeholder="Name"
-      />
-      <input
-        onChange={event => setInput('phone', event.target.value)}
-        style={styles.input}
-        value={formState.phone}
-        placeholder="Phone"
-      />
-      <input
-        onChange={event => setInput('postcode', event.target.value)}
-        style={styles.input}
-        value={formState.postcode}
-        placeholder="Postcode"
-      />
-      <input
-        onChange={event => setInput('maskId', event.target.value)}
-        style={styles.input}
-        value={formState.maskId}
-        placeholder="Mask ID"
-      />
-      <Camera maskId={formState.maskId}></Camera>
-      <br />
-      <button style={styles.button} onClick={addCheckin}>Create Checkin</button>
-      
+      {editing ? 
+      (
+        <>
+          <h2>Edit Checkin:</h2>
+          <tt>({currentCheckin.id})</tt>
+          <EditCheckin
+            editing={editing}
+            setEditing={setEditing}
+            formState={currentCheckin}
+            saveEditCheckin={saveEditCheckin}
+            saveDeleteCheckin={saveDeleteCheckin}
+          />
+        </>
+      ) : (
+        <>
+          <h2>Create Checkin:</h2>
+          <AddCheckin saveAddCheckin={saveAddCheckin} />
+        </>
+      )}
     </div>
   )
 }
 
 const styles = {
   container: { width: 400, margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 20 },
-  checkin: {  marginBottom: 15, border: '2px solid black' },
+  checkin: {  marginBottom: 15, border: '2px solid black', padding: '5px' },
   input: { border: 'none', backgroundColor: '#ddd', marginBottom: 10, padding: 8, fontSize: 18 },
   checkinName: { fontSize: 20, fontWeight: 'bold' },
-  checkinDescription: { marginBottom: 0 },
-  button: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '12px 0px' }
+  checkinDescription: { marginBottom: 0, fontFamily: 'monospace' },
+  checkinDescriptionAlert: { marginBottom: 0, fontFamily: 'monospace', color: 'red' },
+  buttonAddEdit: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '5px' },
+  buttonSave: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '5px' }
 }
 
 export default App
