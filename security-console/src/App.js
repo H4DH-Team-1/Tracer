@@ -5,6 +5,7 @@ import { listCheckins } from './graphql/queries'
 import AddCheckin from './AddCheckin'
 import EditCheckin from './EditCheckin'
 import { createCheckin, deleteCheckin } from './graphql/mutations'
+import { onCreateCheckin } from './graphql/subscriptions'
 import { updateCheckinBasicDetails } from './graphql/customMutations'
 
 import awsExports from './aws-exports';
@@ -21,10 +22,49 @@ const App = () => {
     fetchCheckins()
   }, [])
 
+  useEffect(() => {     
+   let subscription     
+   async function setupSubscription() {            
+     subscription = API.graphql(graphqlOperation(onCreateCheckin)).subscribe({  
+          next: (data) => {     
+              const checkin = data.value.data.onCreateCheckin          
+              setCheckins(a => a.concat([checkin].sort(makeComparator('name'))))
+            }    
+        })   
+      }   
+    setupSubscription()
+    return () => subscription.unsubscribe();
+  }, [])
+
+  function makeComparator(key, order = 'asc') {
+    return (a, b) => {
+      if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) 
+        return 0;
+      
+      const aVal = (typeof a[key] === 'string')
+        ? a[key].toUpperCase()
+        : a[key];
+      const bVal = (typeof b[key] === 'string')
+        ? b[key].toUpperCase()
+        : b[key];
+
+      let comparison = 0;
+      if (aVal > bVal) 
+        comparison = 1;
+      if (aVal < bVal) 
+        comparison = -1;
+      
+      return order === 'desc'
+        ? (comparison * -1)
+        : comparison
+    };
+  }
+
   async function fetchCheckins() {
     try {
       const checkinData = await API.graphql(graphqlOperation(listCheckins))
       const retrievedCheckins = checkinData.data.listCheckins.items
+      //setCheckins(a => a.concat([retrievedCheckins].sort(makeComparator('name'))))
       setCheckins(retrievedCheckins)
     } catch (err) { console.log('error fetching checkins') }
   }
@@ -38,7 +78,7 @@ const App = () => {
       }
       data.id = null //ensure this is null when creating
       const checkin = { ...data }
-      setCheckins([...checkins, data])
+      //setCheckins([...checkins, data]) //this was here to do 'pending' but it's so fast it's not needed
       await API.graphql(graphqlOperation(createCheckin, {input: data}))
     } catch (err) {
       console.log('error creating checkin:', err)
@@ -87,7 +127,7 @@ const App = () => {
       <h1>Mask Tracer<br />Security Console</h1>
       <h2>Active Checkins:</h2>
       {
-        checkins.map((checkin, index) => (
+        checkins.sort(makeComparator('name')).map((checkin, index) => (
           <div key={checkin.id ? checkin.id : index} style={styles.checkin}>
             <p style={styles.checkinName}>{checkin.name}</p>
             <p style={styles.checkinDescription}>Phone:     {checkin.phone}</p>
