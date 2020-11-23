@@ -11,7 +11,6 @@ export const updateCheckinWithPhoto = /* GraphQL */ `
         region
         key
       }
-      updatedAt
     }
   }
 `;

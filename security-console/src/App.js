@@ -4,9 +4,9 @@ import Amplify, { API, graphqlOperation } from 'aws-amplify'
 import { listCheckins } from './graphql/queries'
 import AddCheckin from './AddCheckin'
 import EditCheckin from './EditCheckin'
-import { createCheckin, deleteCheckin } from './graphql/mutations'
-import { onCreateCheckin } from './graphql/subscriptions'
-import { updateCheckinBasicDetails } from './graphql/customMutations'
+import { createCheckin, deleteCheckin, updateCheckin } from './graphql/mutations'
+import { onCreateCheckin, onUpdateCheckin } from './graphql/subscriptions'
+//import { updateCheckinBasicDetails } from './graphql/customMutations'
 
 import awsExports from './aws-exports';
 Amplify.configure(awsExports);
@@ -23,18 +23,33 @@ const App = () => {
   }, [])
 
   useEffect(() => {     
-   let subscription     
-   async function setupSubscription() {            
-     subscription = API.graphql(graphqlOperation(onCreateCheckin)).subscribe({  
-          next: (data) => {     
+   let createSubscription     
+   async function setupCreateSubscription() {            
+    createSubscription = API.graphql(graphqlOperation(onCreateCheckin)).subscribe({  
+          next: (data) => {    
               const checkin = data.value.data.onCreateCheckin          
-              setCheckins(a => a.concat([checkin].sort(makeComparator('name'))))
+              setCheckins(e => e.concat([checkin].sort(makeComparator('name'))))
             }    
         })   
       }   
-    setupSubscription()
-    return () => subscription.unsubscribe();
+      setupCreateSubscription()
+    return () => createSubscription.unsubscribe();
   }, [])
+
+  useEffect(() => {     
+    let editSubscription     
+    async function setupEditSubscription() {            
+      editSubscription = API.graphql(graphqlOperation(onUpdateCheckin)).subscribe({  
+           next: (data) => {
+              console.log('updated: ' + JSON.stringify(data)) 
+              const checkin = data.value.data.onUpdateCheckin          
+              setCheckins(e => e.map(item => (item.id === checkin.id ? checkin : item)))
+             }    
+         })   
+       }   
+       setupEditSubscription()
+     return () => editSubscription.unsubscribe();
+   }, [])
 
   function makeComparator(key, order = 'asc') {
     return (a, b) => {
@@ -98,8 +113,8 @@ const App = () => {
         return
       }
       const checkin = { ...data }
-      setCheckins(checkins.map(item => (item.id === data.id ? data : item)))
-      await API.graphql(graphqlOperation(updateCheckinBasicDetails, {input: data}))
+      //setCheckins(checkins.map(item => (item.id === data.id ? data : item)))
+      await API.graphql(graphqlOperation(updateCheckin, {input: data}))
       setEditing(false)
     } catch (err) {
       console.log('error saving checkin:', err)
