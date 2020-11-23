@@ -1,6 +1,7 @@
 /* src/App.js */
 import React, { useEffect, useState } from 'react'
 import Amplify, { API, graphqlOperation } from 'aws-amplify'
+import Storage from '@aws-amplify/storage'
 import { listCheckins } from './graphql/queries'
 import AddCheckin from './AddCheckin'
 import EditCheckin from './EditCheckin'
