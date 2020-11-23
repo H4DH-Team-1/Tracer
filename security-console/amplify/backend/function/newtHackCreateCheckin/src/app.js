@@ -12,6 +12,9 @@ See the License for the specific language governing permissions and limitations 
 	REGION
 Amplify Params - DO NOT EDIT */
 
+const Amplify = require('aws-amplify')
+Amplify.default.configure(JSON.parse(process.env.AMPLIFYCFG));
+
 var express = require('express')
 var bodyParser = require('body-parser')
 var awsServerlessExpressMiddleware = require('aws-serverless-express/middleware')
@@ -29,8 +32,25 @@ app.use(function(req, res, next) {
 });
 
 app.post('/checkin', function(req, res) {
-  // Add your code here
-  res.json({success: 'post call succeed!', url: req.url, body: req.body})
+  const resp = {success: false}
+  // try {
+  //   const data = req.body;
+  //   if (!data.name || !data.phone || !data.postcode || !data.maskId)
+  //   {
+  //     resp.error = "Required Field Missing"
+  //     console.log('INVALID ADD: ' + JSON.stringify(data))
+  //   }
+  //   else
+  //   {
+  //     await API.graphql(graphqlOperation(createCheckin, {input: data}))
+  //     resp.success = true
+  //   }
+  // } catch (err) {
+  //   console.log('error creating checkin:', err)
+  //   resp.error = 'error creating checkin:' + err
+  // }
+  //resp.bucket = awsExports.aws_user_files_s3_bucket
+  res.json({success: 'post call succeed!', url: req.url, request: req.body, response: resp})
 });
 
 app.listen(3000, function() {

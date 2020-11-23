@@ -8,10 +8,8 @@ import AddCheckin from './AddCheckin'
 import EditCheckin from './EditCheckin'
 import { createCheckin, deleteCheckin, updateCheckin } from './graphql/mutations'
 import { onCreateCheckin, onUpdateCheckin, onDeleteCheckin } from './graphql/subscriptions'
-
-import awsExports from './aws-exports';
 import Camera from './Camera'
-Amplify.configure(awsExports);
+import awsExports from './aws-exports';
 
 const initialState = { id: null, name: '', phone: '', postcode: '', maskId: '' }
 
