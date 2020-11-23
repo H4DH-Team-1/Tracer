@@ -5,7 +5,7 @@ import { listCheckins } from './graphql/queries'
 import AddCheckin from './AddCheckin'
 import EditCheckin from './EditCheckin'
 import { createCheckin, deleteCheckin, updateCheckin } from './graphql/mutations'
-import { onCreateCheckin, onUpdateCheckin } from './graphql/subscriptions'
+import { onCreateCheckin, onUpdateCheckin, onDeleteCheckin } from './graphql/subscriptions'
 //import { updateCheckinBasicDetails } from './graphql/customMutations'
 
 import awsExports from './aws-exports';
@@ -41,7 +41,6 @@ const App = () => {
     async function setupEditSubscription() {            
       editSubscription = API.graphql(graphqlOperation(onUpdateCheckin)).subscribe({  
            next: (data) => {
-              console.log('updated: ' + JSON.stringify(data)) 
               const checkin = data.value.data.onUpdateCheckin          
               setCheckins(e => e.map(item => (item.id === checkin.id ? checkin : item)))
              }    
@@ -50,6 +49,20 @@ const App = () => {
        setupEditSubscription()
      return () => editSubscription.unsubscribe();
    }, [])
+
+  useEffect(() => {     
+    let deleteSubscription     
+    async function setupDeleteSubscription() {            
+      deleteSubscription = API.graphql(graphqlOperation(onDeleteCheckin)).subscribe({  
+            next: (data) => {
+              const checkin = data.value.data.onDeleteCheckin          
+              setCheckins(e => e.filter(item => item.id !== checkin.id))
+            }    
+          })   
+        }   
+        setupDeleteSubscription()
+      return () => deleteSubscription.unsubscribe();
+  }, [])
 
   function makeComparator(key, order = 'asc') {
     return (a, b) => {
@@ -129,7 +142,7 @@ const App = () => {
         return
       }
       const checkin = { id: data.id }
-      setCheckins(checkins.filter(item => item.id !== data.id))
+      //setCheckins(checkins.filter(item => item.id !== data.id))
       await API.graphql(graphqlOperation(deleteCheckin, {input: checkin}))
       setEditing(false)
     } catch (err) {
