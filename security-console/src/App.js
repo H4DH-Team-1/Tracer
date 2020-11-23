@@ -2,12 +2,11 @@
 import React, { useEffect, useState } from 'react'
 import Amplify, { API, graphqlOperation } from 'aws-amplify'
 import Storage from '@aws-amplify/storage'
-import { listCheckins } from './graphql/queries'
+import { listCheckins, getCheckin } from './graphql/queries'
 import AddCheckin from './AddCheckin'
 import EditCheckin from './EditCheckin'
 import { createCheckin, deleteCheckin, updateCheckin } from './graphql/mutations'
 import { onCreateCheckin, onUpdateCheckin, onDeleteCheckin } from './graphql/subscriptions'
-//import { updateCheckinBasicDetails } from './graphql/customMutations'
 
 import awsExports from './aws-exports';
 import Camera from './Camera'
@@ -19,6 +18,7 @@ const App = () => {
   const [editing, setEditing] = useState(false)
   const [currentCheckin, setCurrentCheckin] = useState(initialState)
   const [checkins, setCheckins] = useState([])
+  const [currentImageUrl, setCurrentImageUrl] = useState('')
 
   useEffect(() => {
     fetchCheckins()
@@ -116,7 +116,24 @@ const App = () => {
 
   async function prepareEditCheckin(checkin) {
     setEditing(true)
-    setCurrentCheckin({ id: checkin.id, name: checkin.name, phone: checkin.phone, postcode: checkin.postcode, maskId: checkin.maskId })
+    const fullCheckin = (await API.graphql(graphqlOperation(getCheckin, {id: checkin.id}))).data.getCheckin
+    if (fullCheckin.photo && fullCheckin.photo.key)
+    {
+      try {
+        const imageUrl = await Storage.get(fullCheckin.photo.key)
+        if (imageUrl)
+        {
+          setCurrentImageUrl(imageUrl)
+        }
+        else
+        {
+          setCurrentImageUrl('')
+        }
+      } catch (err) {
+        console.log('error retrieving image:', err)
+      }
+    }
+    setCurrentCheckin({ id: fullCheckin.id, name: fullCheckin.name, phone: fullCheckin.phone, postcode: fullCheckin.postcode, maskId: fullCheckin.maskId })
   }
 
   async function saveEditCheckin(data) {
@@ -127,7 +144,7 @@ const App = () => {
         return
       }
       const checkin = { ...data }
-      await API.graphql(graphqlOperation(updateCheckin, {input: data}))
+      await API.graphql(graphqlOperation(updateCheckin, {input: checkin}))
       setEditing(false)
     } catch (err) {
       console.log('error saving checkin:', err)
@@ -170,7 +187,12 @@ const App = () => {
       })
 
       const checkin = { ...data }
-      //await API.graphql(graphqlOperation(updateCheckin, {input: data}))
+      checkin.photo = {
+        bucket: awsExports.aws_user_files_s3_bucket,
+        region: awsExports.aws_user_files_s3_bucket_region,
+        key: 'public/' + fileName
+      }
+      await API.graphql(graphqlOperation(updateCheckin, {input: checkin}))
       setEditing(false)
     } catch (err) {
       console.log('error saving checkin:', err)
@@ -200,6 +222,7 @@ const App = () => {
         <>
           <h2>Edit Checkin:</h2>
           <tt>({currentCheckin.id})</tt>
+          { currentImageUrl ? <img src={currentImageUrl} style={{ width: 400 }} /> : '(No image)' }
           <EditCheckin
             editing={editing}
             setEditing={setEditing}
