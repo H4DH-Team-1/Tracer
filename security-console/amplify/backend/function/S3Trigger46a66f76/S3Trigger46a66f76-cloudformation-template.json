@@ -28,12 +28,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "S3Trigger9a8cfe90",
+            "S3Trigger46a66f76",
             {
               "Fn::Join": [
                 "",
                 [
-                  "S3Trigger9a8cfe90",
+                  "S3Trigger46a66f76",
                   "-",
                   {
                     "Ref": "env"
@@ -60,7 +60,7 @@
         "Timeout": "25",
         "Code": {
           "S3Bucket": "amplify-newthackathonsec-dev-111926-deployment",
-          "S3Key": "amplify-builds/S3Trigger9a8cfe90-4d734142556266383852-build.zip"
+          "S3Key": "amplify-builds/S3Trigger46a66f76-4a672b4573457659324c-build.zip"
         }
       }
     },
@@ -70,12 +70,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "S3Trigger9a8cfe90LambdaRole9a8cfe90",
+            "S3Trigger46a66f76LambdaRole46a66f76",
             {
               "Fn::Join": [
                 "",
                 [
-                  "S3Trigger9a8cfe90LambdaRole9a8cfe90",
+                  "S3Trigger46a66f76LambdaRole46a66f76",
                   "-",
                   {
                     "Ref": "env"

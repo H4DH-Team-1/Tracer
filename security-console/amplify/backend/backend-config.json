@@ -38,7 +38,7 @@
       "service": "Lambda",
       "dependsOn": []
     },
-    "S3Trigger9a8cfe90": {
+    "S3Trigger46a66f76": {
       "service": "Lambda",
       "providerPlugin": "awscloudformation",
       "build": true
@@ -60,13 +60,13 @@
     }
   },
   "storage": {
-    "newtHackStorage": {
+    "newtTelstraHackS3": {
       "service": "S3",
       "providerPlugin": "awscloudformation",
       "dependsOn": [
         {
           "category": "function",
-          "resourceName": "S3Trigger9a8cfe90",
+          "resourceName": "S3Trigger46a66f76",
           "attributes": [
             "Name",
             "Arn",

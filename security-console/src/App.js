@@ -1,6 +1,7 @@
 /* src/App.js */
 import React, { useEffect, useState } from 'react'
 import Amplify, { API, graphqlOperation } from 'aws-amplify'
+import { withAuthenticator } from '@aws-amplify/ui-react'
 import Storage from '@aws-amplify/storage'
 import { listCheckins, getCheckin } from './graphql/queries'
 import AddCheckin from './AddCheckin'
@@ -116,7 +117,8 @@ const App = () => {
 
   async function prepareEditCheckin(checkin) {
     setEditing(true)
-    const fullCheckin = (await API.graphql(graphqlOperation(getCheckin, {id: checkin.id}))).data.getCheckin
+    const fullCheckin = checkin //(await API.graphql(graphqlOperation(getCheckin, {id: checkin.id}))).data.getCheckin
+    setCurrentCheckin({ id: fullCheckin.id, name: fullCheckin.name, phone: fullCheckin.phone, postcode: fullCheckin.postcode, maskId: fullCheckin.maskId })
     if (fullCheckin.photo && fullCheckin.photo.key)
     {
       try {
@@ -133,7 +135,6 @@ const App = () => {
         console.log('error retrieving image:', err)
       }
     }
-    setCurrentCheckin({ id: fullCheckin.id, name: fullCheckin.name, phone: fullCheckin.phone, postcode: fullCheckin.postcode, maskId: fullCheckin.maskId })
   }
 
   async function saveEditCheckin(data) {
@@ -190,7 +191,7 @@ const App = () => {
       checkin.photo = {
         bucket: awsExports.aws_user_files_s3_bucket,
         region: awsExports.aws_user_files_s3_bucket_region,
-        key: 'public/' + fileName
+        key: fileName
       }
       await API.graphql(graphqlOperation(updateCheckin, {input: checkin}))
       setEditing(false)
@@ -253,4 +254,4 @@ const styles = {
   buttonSave: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '5px' }
 }
 
-export default App
+export default withAuthenticator(App)
