@@ -10,6 +10,7 @@ import { onCreateCheckin, onUpdateCheckin, onDeleteCheckin } from './graphql/sub
 //import { updateCheckinBasicDetails } from './graphql/customMutations'
 
 import awsExports from './aws-exports';
+import Camera from './Camera'
 Amplify.configure(awsExports);
 
 const initialState = { id: null, name: '', phone: '', postcode: '', maskId: '' }
@@ -107,7 +108,6 @@ const App = () => {
       }
       data.id = null //ensure this is null when creating
       const checkin = { ...data }
-      //setCheckins([...checkins, data]) //this was here to do 'pending' but it's so fast it's not needed
       await API.graphql(graphqlOperation(createCheckin, {input: data}))
     } catch (err) {
       console.log('error creating checkin:', err)
@@ -127,7 +127,6 @@ const App = () => {
         return
       }
       const checkin = { ...data }
-      //setCheckins(checkins.map(item => (item.id === data.id ? data : item)))
       await API.graphql(graphqlOperation(updateCheckin, {input: data}))
       setEditing(false)
     } catch (err) {
@@ -143,8 +142,35 @@ const App = () => {
         return
       }
       const checkin = { id: data.id }
-      //setCheckins(checkins.filter(item => item.id !== data.id))
       await API.graphql(graphqlOperation(deleteCheckin, {input: checkin}))
+      setEditing(false)
+    } catch (err) {
+      console.log('error saving checkin:', err)
+    }
+  }
+
+  async function saveEditCheckinPhoto(data, image) {
+    try {
+      if (!data.id || !data.name || !data.phone || !data.postcode || !data.maskId)
+      {
+        console.log('INVALID EDIT PHOTO: ' + JSON.stringify(data))
+        return
+      }
+      if (!image)
+      {
+        console.log('INVALID EDIT PHOTO: NO IMAGE FOUND!')
+        return
+      }
+
+      const fileName = data.maskId + '.jpg'
+      const base64Data = new Buffer.from(image.replace(/^data:image\/\w+;base64,/, ""), 'base64')
+      await Storage.put(fileName, base64Data, {
+        contentType: 'image/jpeg',
+        contentEncoding: 'base64'
+      })
+
+      const checkin = { ...data }
+      //await API.graphql(graphqlOperation(updateCheckin, {input: data}))
       setEditing(false)
     } catch (err) {
       console.log('error saving checkin:', err)
@@ -181,6 +207,7 @@ const App = () => {
             saveEditCheckin={saveEditCheckin}
             saveDeleteCheckin={saveDeleteCheckin}
           />
+          <Camera data={currentCheckin} callPhotoCapturedFunc={saveEditCheckinPhoto}></Camera>
         </>
       ) : (
         <>
