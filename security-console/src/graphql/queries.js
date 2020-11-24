@@ -14,10 +14,12 @@ export const getCheckin = /* GraphQL */ `
         region
         key
       }
+      identifiedPersonId
       movements {
         items {
           id
-          title
+          location
+          identifiedPersonId
           checkinID
           createdAt
           updatedAt
@@ -47,6 +49,7 @@ export const listCheckins = /* GraphQL */ `
           region
           key
         }
+        identifiedPersonId
         movements {
           nextToken
         }
@@ -61,7 +64,13 @@ export const getMovement = /* GraphQL */ `
   query GetMovement($id: ID!) {
     getMovement(id: $id) {
       id
-      title
+      location
+      photo {
+        bucket
+        region
+        key
+      }
+      identifiedPersonId
       checkinID
       checkin {
         id
@@ -74,6 +83,7 @@ export const getMovement = /* GraphQL */ `
           region
           key
         }
+        identifiedPersonId
         movements {
           nextToken
         }
@@ -94,7 +104,13 @@ export const listMovements = /* GraphQL */ `
     listMovements(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        title
+        location
+        photo {
+          bucket
+          region
+          key
+        }
+        identifiedPersonId
         checkinID
         checkin {
           id
@@ -102,6 +118,7 @@ export const listMovements = /* GraphQL */ `
           phone
           postcode
           maskId
+          identifiedPersonId
           createdAt
           updatedAt
         }

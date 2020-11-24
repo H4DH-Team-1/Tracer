@@ -47,13 +47,12 @@ app.post('/checkin', async function(req, res) {
     }
     else
     {
-      const fileName = `${data.maskId}.jpg`
+      const fileName = `c-${data.maskId}.jpg`
       const base64Data = new Buffer.from(data.image.replace(/^data:image\/\w+;base64,/, ""), 'base64')
 
       var params = {
         Bucket: config.aws_user_files_s3_bucket,
         Key: `public/${fileName}`,
-        //ACL: private | public-read | public-read-write | authenticated-read | aws-exec-read | bucket-owner-read | bucket-owner-full-control,
         Body: base64Data,
         ContentEncoding: 'base64',
         ContentType: 'image/jpeg'
@@ -75,8 +74,6 @@ app.post('/checkin', async function(req, res) {
         next();
       });
 
-      const now = new Date()
-      
       //LEARNING: Fixed Dis!! Talk about the return items
       const graphQlResp = await fetch({
         query: `
@@ -102,10 +99,12 @@ app.post('/checkin', async function(req, res) {
               region
               key
             }
+            identifiedPersonId
             movements {
               items {
                 id
-                title
+                location
+                identifiedPersonId
                 checkinID
                 createdAt
                 updatedAt

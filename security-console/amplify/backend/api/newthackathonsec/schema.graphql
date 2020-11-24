@@ -5,12 +5,15 @@ type Checkin @model {
   postcode: String!
   maskId: String!
   photo: S3Object
+  identifiedPersonId: String
   movements: [Movement] @connection(keyName: "movement", fields: ["id"])
 }
 
 type Movement @model @key(name: "movement", fields: ["checkinID"]) {
   id: ID!
-  title: String!
+  location: String!
+  photo: S3Object!
+  identifiedPersonId: String
   checkinID: ID!
   checkin: Checkin @connection(fields: ["checkinID"])
 }

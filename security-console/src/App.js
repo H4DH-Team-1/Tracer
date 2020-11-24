@@ -18,7 +18,7 @@ const App = () => {
   const [currentCheckin, setCurrentCheckin] = useState(initialState)
   const [checkins, setCheckins] = useState([])
   const [currentImageUrl, setCurrentImageUrl] = useState('')
-  const [forceRefresh, setForceRefresh] = useState(false)
+  const [forceRefresh, setForceRefresh] = useState(false) //this ended up not being required :)
 
   useEffect(() => {
     fetchCheckins()
@@ -192,8 +192,7 @@ const App = () => {
         console.log('INVALID EDIT PHOTO: NO IMAGE FOUND!')
         return
       }
-console.log('IMAGE DATA TEMP: ' + image) //delete me!
-      const fileName = data.maskId + '.jpg'
+      const fileName = 'c-' + data.maskId + '.jpg'
       const base64Data = new Buffer.from(image.replace(/^data:image\/\w+;base64,/, ""), 'base64')
       await Storage.put(fileName, base64Data, {
         contentType: 'image/jpeg',

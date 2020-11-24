@@ -17,10 +17,12 @@ export const createCheckin = /* GraphQL */ `
         region
         key
       }
+      identifiedPersonId
       movements {
         items {
           id
-          title
+          location
+          identifiedPersonId
           checkinID
           createdAt
           updatedAt
@@ -48,10 +50,12 @@ export const updateCheckin = /* GraphQL */ `
         region
         key
       }
+      identifiedPersonId
       movements {
         items {
           id
-          title
+          location
+          identifiedPersonId
           checkinID
           createdAt
           updatedAt
@@ -79,10 +83,12 @@ export const deleteCheckin = /* GraphQL */ `
         region
         key
       }
+      identifiedPersonId
       movements {
         items {
           id
-          title
+          location
+          identifiedPersonId
           checkinID
           createdAt
           updatedAt
@@ -101,7 +107,13 @@ export const createMovement = /* GraphQL */ `
   ) {
     createMovement(input: $input, condition: $condition) {
       id
-      title
+      location
+      photo {
+        bucket
+        region
+        key
+      }
+      identifiedPersonId
       checkinID
       checkin {
         id
@@ -114,6 +126,7 @@ export const createMovement = /* GraphQL */ `
           region
           key
         }
+        identifiedPersonId
         movements {
           nextToken
         }
@@ -132,7 +145,13 @@ export const updateMovement = /* GraphQL */ `
   ) {
     updateMovement(input: $input, condition: $condition) {
       id
-      title
+      location
+      photo {
+        bucket
+        region
+        key
+      }
+      identifiedPersonId
       checkinID
       checkin {
         id
@@ -145,6 +164,7 @@ export const updateMovement = /* GraphQL */ `
           region
           key
         }
+        identifiedPersonId
         movements {
           nextToken
         }
@@ -163,7 +183,13 @@ export const deleteMovement = /* GraphQL */ `
   ) {
     deleteMovement(input: $input, condition: $condition) {
       id
-      title
+      location
+      photo {
+        bucket
+        region
+        key
+      }
+      identifiedPersonId
       checkinID
       checkin {
         id
@@ -176,6 +202,7 @@ export const deleteMovement = /* GraphQL */ `
           region
           key
         }
+        identifiedPersonId
         movements {
           nextToken
         }
