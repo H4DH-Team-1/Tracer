@@ -12,8 +12,13 @@ See the License for the specific language governing permissions and limitations 
 	REGION
 Amplify Params - DO NOT EDIT */
 
-const Amplify = require('aws-amplify')
-Amplify.default.configure(JSON.parse(process.env.AMPLIFYCFG));
+//NOTE: you need to copy the contents of "aws-exports.js" from root SRC
+//into an environment variable in Lambda.
+//WARNING: There must be a better way to share this!  Just a hackathon quick fix...
+const config = JSON.parse(process.env.AMPLIFYCFG)
+
+const { createApolloFetch } = require('apollo-fetch')
+const AWS = require('aws-sdk')
 
 var express = require('express')
 var bodyParser = require('body-parser')
@@ -31,26 +36,97 @@ app.use(function(req, res, next) {
   next()
 });
 
-app.post('/checkin', function(req, res) {
+app.post('/checkin', async function(req, res) {
   const resp = {success: false}
-  // try {
-  //   const data = req.body;
-  //   if (!data.name || !data.phone || !data.postcode || !data.maskId)
-  //   {
-  //     resp.error = "Required Field Missing"
-  //     console.log('INVALID ADD: ' + JSON.stringify(data))
-  //   }
-  //   else
-  //   {
-  //     await API.graphql(graphqlOperation(createCheckin, {input: data}))
-  //     resp.success = true
-  //   }
-  // } catch (err) {
-  //   console.log('error creating checkin:', err)
-  //   resp.error = 'error creating checkin:' + err
-  // }
-  //resp.bucket = awsExports.aws_user_files_s3_bucket
-  res.json({success: 'post call succeed!', url: req.url, request: req.body, response: resp})
+  try {
+    const data = req.body;
+    if (!data.name || !data.phone || !data.postcode || !data.maskId || !data.image)
+    {
+      resp.error = "Required Field Missing"
+      console.log('INVALID ADD: ' + JSON.stringify(data))
+    }
+    else
+    {
+      const fileName = `${data.maskId}.jpg`
+      const base64Data = new Buffer.from(data.image.replace(/^data:image\/\w+;base64,/, ""), 'base64')
+
+      var params = {
+        Bucket: config.aws_user_files_s3_bucket,
+        Key: `public/${fileName}`,
+        //ACL: private | public-read | public-read-write | authenticated-read | aws-exec-read | bucket-owner-read | bucket-owner-full-control,
+        Body: base64Data,
+        ContentEncoding: 'base64',
+        ContentType: 'image/jpeg'
+      };
+      const s3 = new AWS.S3({region: config.aws_user_files_s3_bucket_region})
+      const s3Res = await s3.putObject(params).promise()
+      console.log('Response from S3', s3Res)
+      
+      const fetch = createApolloFetch({
+        uri: config.aws_appsync_graphqlEndpoint,
+      });
+
+      fetch.use(({ request, options }, next) => {
+        if (!options.headers) {
+          options.headers = {};
+        }
+        options.headers['x-api-key'] = config.aws_appsync_apiKey;
+      
+        next();
+      });
+
+      const now = new Date()
+      
+      //LEARNING: Fixed Dis!! Talk about the return items
+      const graphQlResp = await fetch({
+        query: `
+        mutation CreateBasicCheckin {
+          createCheckin(input: {
+            maskId: "${data.maskId}", 
+            name: "${data.name}", 
+            phone: "${data.phone}", 
+            postcode: "${data.postcode}", 
+            photo: {
+              bucket: "${config.aws_user_files_s3_bucket}", 
+              region: "${config.aws_user_files_s3_bucket_region}", 
+              key: "${fileName}"
+            }
+          }) {
+            id
+            name
+            phone
+            postcode
+            maskId
+            photo {
+              bucket
+              region
+              key
+            }
+            movements {
+              items {
+                id
+                title
+                checkinID
+                createdAt
+                updatedAt
+              }
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+        }
+        `,
+      });
+      
+      console.log('Response from GraphQL', graphQlResp)
+      resp.success = true
+    }
+  } catch (err) {
+    console.log('error creating checkin:', err)
+    resp.error = 'error creating checkin:' + err
+  }
+  res.json({success: 'post call succeed!', url: req.url, response: resp})
 });
 
 app.listen(3000, function() {

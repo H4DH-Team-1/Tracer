@@ -9,7 +9,7 @@ import EditCheckin from './EditCheckin'
 import { createCheckin, deleteCheckin, updateCheckin } from './graphql/mutations'
 import { onCreateCheckin, onUpdateCheckin, onDeleteCheckin } from './graphql/subscriptions'
 import Camera from './Camera'
-import awsExports from './aws-exports';
+import awsExports from './aws-exports'
 
 const initialState = { id: null, name: '', phone: '', postcode: '', maskId: '' }
 
@@ -18,18 +18,32 @@ const App = () => {
   const [currentCheckin, setCurrentCheckin] = useState(initialState)
   const [checkins, setCheckins] = useState([])
   const [currentImageUrl, setCurrentImageUrl] = useState('')
+  const [forceRefresh, setForceRefresh] = useState(false)
 
   useEffect(() => {
     fetchCheckins()
-  }, [])
+  }, [forceRefresh])
 
   useEffect(() => {     
    let createSubscription     
    async function setupCreateSubscription() {            
     createSubscription = API.graphql(graphqlOperation(onCreateCheckin)).subscribe({  
           next: (data) => {    
-              const checkin = data.value.data.onCreateCheckin          
-              setCheckins(e => e.concat([checkin].sort(makeComparator('name'))))
+              const checkin = data.value.data.onCreateCheckin
+              if (!checkin)
+              {
+                //We sometimes get errors from mutations, still trying to figure it out
+                //In the meantime just force a refresh to the app appears to work!
+                //Ahh love hackathons!  Do not do this in prod, fix the underlying issue!!!
+                console.log('CREATE SUB ERROR: ' + JSON.stringify(data))  
+                setForceRefresh(!forceRefresh)
+
+                //LEARNING: Fixed Dis!!  Return items on update.. see app.js in function
+              }
+              else
+              {
+                setCheckins(e => e.concat([checkin]))
+              }
             }    
         })   
       }   
@@ -67,7 +81,7 @@ const App = () => {
 
   function makeComparator(key, order = 'asc') {
     return (a, b) => {
-      if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) 
+      if (!a || !b || !a.hasOwnProperty(key) || !b.hasOwnProperty(key)) 
         return 0;
       
       const aVal = (typeof a[key] === 'string')
@@ -93,7 +107,6 @@ const App = () => {
     try {
       const checkinData = await API.graphql(graphqlOperation(listCheckins))
       const retrievedCheckins = checkinData.data.listCheckins.items
-      //setCheckins(a => a.concat([retrievedCheckins].sort(makeComparator('name'))))
       setCheckins(retrievedCheckins)
     } catch (err) { console.log('error fetching checkins') }
   }
@@ -107,7 +120,7 @@ const App = () => {
       }
       data.id = null //ensure this is null when creating
       const checkin = { ...data }
-      await API.graphql(graphqlOperation(createCheckin, {input: data}))
+      await API.graphql(graphqlOperation(createCheckin, {input: checkin}))
     } catch (err) {
       console.log('error creating checkin:', err)
     }
@@ -145,6 +158,7 @@ const App = () => {
       const checkin = { ...data }
       await API.graphql(graphqlOperation(updateCheckin, {input: checkin}))
       setEditing(false)
+      setCurrentImageUrl('')
     } catch (err) {
       console.log('error saving checkin:', err)
     }
@@ -160,6 +174,7 @@ const App = () => {
       const checkin = { id: data.id }
       await API.graphql(graphqlOperation(deleteCheckin, {input: checkin}))
       setEditing(false)
+      setCurrentImageUrl('')
     } catch (err) {
       console.log('error saving checkin:', err)
     }
@@ -177,7 +192,7 @@ const App = () => {
         console.log('INVALID EDIT PHOTO: NO IMAGE FOUND!')
         return
       }
-
+console.log('IMAGE DATA TEMP: ' + image) //delete me!
       const fileName = data.maskId + '.jpg'
       const base64Data = new Buffer.from(image.replace(/^data:image\/\w+;base64,/, ""), 'base64')
       await Storage.put(fileName, base64Data, {
@@ -193,6 +208,7 @@ const App = () => {
       }
       await API.graphql(graphqlOperation(updateCheckin, {input: checkin}))
       setEditing(false)
+      setCurrentImageUrl('')
     } catch (err) {
       console.log('error saving checkin:', err)
     }
@@ -203,9 +219,9 @@ const App = () => {
       <h1>Mask Tracer<br />Security Console</h1>
       <h2>Active Checkins:</h2>
       {
-        checkins.sort(makeComparator('name')).map((checkin, index) => (
+        !checkins ? <p>None!</p> : checkins.sort(makeComparator('name')).map((checkin, index) => (
           <div key={checkin.id ? checkin.id : index} style={styles.checkin}>
-            <p style={styles.checkinName}>{checkin.name}</p>
+            <p style={styles.checkinName}>{checkin.name ? checkin.name : '[Unknown Error!]'}</p>
             <p style={styles.checkinDescription}>Phone:     {checkin.phone}</p>
             <p style={styles.checkinDescription}>Postcode:  {checkin.postcode}</p>
             <p style={styles.checkinDescription}>Mask ID:   {checkin.maskId}</p>
