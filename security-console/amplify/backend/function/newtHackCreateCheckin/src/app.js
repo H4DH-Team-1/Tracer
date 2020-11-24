@@ -79,6 +79,7 @@ app.post('/checkin', async function(req, res) {
         query: `
         mutation CreateBasicCheckin {
           createCheckin(input: {
+            id: "${data.maskId}", 
             maskId: "${data.maskId}", 
             name: "${data.name}", 
             phone: "${data.phone}", 

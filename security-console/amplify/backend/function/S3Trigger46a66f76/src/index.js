@@ -29,15 +29,16 @@ exports.handler = async function(event, context) {
     CollectionId: collectionIdForFaces, 
     DetectionAttributes: [], 
     Image: {
-     S3Object: {
+      S3Object: {
       Bucket: bucket, 
       Name: key
-     }
+      }
     }
-   }).promise()
-   console.log('Got index faces response', faces)
+    }).promise()
+    console.log('Got index faces response', faces)
 
-   
+  //todo: if 'c' - find the checkin and update it (graphql mutation)
+  //otherwise, try create a 'movement', search for faces (graphql filter) and attach the movement
 
-  context.done(null, 'Successfully processed S3 event') // SUCCESS with message
+  context.done(null, 'Successfully processed S3 event')
 };

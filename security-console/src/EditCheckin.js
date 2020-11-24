@@ -44,12 +44,6 @@ const App = (props) => {
         value={formState.postcode}
         placeholder="Postcode"
       />
-      <input
-        onChange={event => setInput('maskId', event.target.value)}
-        style={styles.input}
-        value={formState.maskId}
-        placeholder="Mask ID"
-      />
       <br />
       <button style={styles.buttonSave} onClick={() => callSaveEditCheckin()} disabled={!formState.id || !formState.name || !formState.phone || !formState.postcode || !formState.maskId}>Save Checkin</button>
       <button style={styles.buttonCancel} onClick={() => props.setEditing(false)} >Cancel</button>

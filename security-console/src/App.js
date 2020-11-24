@@ -118,7 +118,7 @@ const App = () => {
         console.log('INVALID ADD: ' + JSON.stringify(data))
         return
       }
-      data.id = null //ensure this is null when creating
+      data.id = data.maskId
       const checkin = { ...data }
       await API.graphql(graphqlOperation(createCheckin, {input: checkin}))
     } catch (err) {
