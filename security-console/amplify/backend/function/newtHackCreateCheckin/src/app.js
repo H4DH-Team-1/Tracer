@@ -126,7 +126,7 @@ app.post('/checkin', async function(req, res) {
     console.log('error creating checkin:', err)
     resp.error = 'error creating checkin:' + err
   }
-  res.json({success: 'post call succeed!', url: req.url, response: resp})
+  res.json({response: resp})
 });
 
 app.listen(3000, function() {

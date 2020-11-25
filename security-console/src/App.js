@@ -225,6 +225,7 @@ const App = () => {
             <p style={styles.checkinDescription}>Postcode:  {checkin.postcode}</p>
             <p style={styles.checkinDescription}>Mask ID:   {checkin.maskId}</p>
             <p style={styles.checkinDescription}>Has Photo? {checkin.photo ? 'Yes' : 'No'}</p>
+            <p style={styles.checkinDescription}>Face Id?   {checkin.identifiedPersonId ? 'Yes' : 'No'}</p>
         { checkin.id ? null : <p style={styles.checkinDescriptionAlert}>PENDING SAVE!!!</p> }
             <button style={styles.buttonAddEdit} onClick={() => prepareEditCheckin(checkin)}>Edit Checkin</button>
           </div>
@@ -246,12 +247,16 @@ const App = () => {
           />
           <Camera data={currentCheckin} callPhotoCapturedFunc={saveEditCheckinPhoto}></Camera>
         </>
-      ) : (
-        <>
-          <h2>Create Checkin:</h2>
-          <AddCheckin saveAddCheckin={saveAddCheckin} />
-        </>
-      )}
+      ) 
+      : null
+      // Temporarily turn off adding
+      // : (
+      //   <>
+      //     <h2>Create Checkin:</h2>
+      //     <AddCheckin saveAddCheckin={saveAddCheckin} />
+      //   </>
+      // )
+      }
     </div>
   )
 }
