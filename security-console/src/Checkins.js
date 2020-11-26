@@ -43,6 +43,7 @@ import HouseIcon from '@material-ui/icons/House';
 import PhoneIcon from '@material-ui/icons/Phone';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import AvTimerIcon from '@material-ui/icons/AvTimer';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -75,6 +76,10 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
   },
+  icontext: {
+    verticalAlign: 'top',
+    marginBottom: 6,
+  },
 }));
 
 const initialState = {
@@ -94,12 +99,21 @@ const Checkins = () => {
   const [forceRefresh, setForceRefresh] = useState(false); //this ended up not being required :)
   const [open, setOpen] = React.useState(false);
   const [kiosk, setKiosk] = React.useState(false);
+  const [currentDate, setCurrentDate] = React.useState(new Date());
 
   const classes = useStyles()
 
   useEffect(() => {
     fetchCheckins();
   }, [forceRefresh]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      //Refresh every minute for expiry
+      setCurrentDate(new Date())
+    }, 1000*60);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     let createSubscription;
@@ -175,6 +189,14 @@ const Checkins = () => {
 
       return order === 'desc' ? comparison * -1 : comparison
     }
+  }
+
+  const calculateExpiryMinutes = (maskCreatedAt) => {
+    const createdDate = new Date(maskCreatedAt)
+    const numMinsExpiry = 180
+    var expiry = new Date(createdDate.getTime() + numMinsExpiry*60000)
+    var diffMs = (expiry - currentDate)
+    return Math.floor(diffMs / 1000 / 60)
   }
 
   async function fetchCheckins() {
@@ -334,35 +356,43 @@ const Checkins = () => {
                   </Typography>
                   <Grid container>
                     <Grid item xs={4} align='right'>
-                      <Typography>Phone<MoreVertIcon />&nbsp;</Typography>
+                      <Typography className={classes.icontext} component="span">Phone</Typography><MoreVertIcon />&nbsp;
                     </Grid>
                     <Grid item xs={8}>
-                    <Typography><PhoneIcon />&nbsp;{checkin.phone}</Typography>
+                      <PhoneIcon />&nbsp;<Typography className={classes.icontext} component="span">{checkin.phone}</Typography>
                     </Grid>
                   </Grid>
                   <Grid container>
                     <Grid item xs={4} align='right'>
-                      <Typography>Postcode<MoreVertIcon />&nbsp;</Typography>
+                      <Typography className={classes.icontext} component="span">Postcode</Typography><MoreVertIcon />&nbsp;
                     </Grid>
                     <Grid item xs={8}>
-                    <Typography><HouseIcon />&nbsp;{checkin.postcode}</Typography>
+                      <HouseIcon />&nbsp;<Typography className={classes.icontext} component="span">{checkin.postcode}</Typography>
                     </Grid>
                   </Grid>
                   <Grid container>
                     <Grid item xs={4} align='right'>
-                      <Typography>Photo taken<MoreVertIcon />&nbsp;</Typography>
+                      <Typography className={classes.icontext} component="span">Expiry (minutes)</Typography><MoreVertIcon />&nbsp;
                     </Grid>
                     <Grid item xs={8}>
-                      {checkin.photo ? <><Typography><PhotoIcon color='primary' />&nbsp;Yes</Typography></> : <><Typography color='error'><ErrorIcon color='error' />&nbsp;No!</Typography></> }
+                      <><AvTimerIcon color={calculateExpiryMinutes(checkin.createdAt) <= 0 ? 'error' : 'primary' } />&nbsp;<Typography className={classes.icontext} component="span">{ calculateExpiryMinutes(checkin.createdAt) }</Typography></>
+                    </Grid>
+                  </Grid>
+                  <Grid container>
+                    <Grid item xs={4} align='right'>
+                      <Typography className={classes.icontext} component="span">Photo taken</Typography><MoreVertIcon />&nbsp;
+                    </Grid>
+                    <Grid item xs={8}>
+                      {checkin.photo ? <><PhotoIcon color='primary' />&nbsp;<Typography className={classes.icontext} component="span">Yes</Typography></> : <><ErrorIcon color='error' />&nbsp;<Typography className={classes.icontext} component="span" color='error'>No!</Typography></> }
                     </Grid>
                   </Grid>
                   { checkin.photo ?
                   <Grid container>
                     <Grid item xs={4} align='right'>
-                      <Typography>Face Detected<MoreVertIcon />&nbsp;</Typography>
+                      <Typography className={classes.icontext} component="span">Face Detected</Typography><MoreVertIcon />&nbsp;
                     </Grid>
                     <Grid item xs={8}>
-                      {checkin.identifiedPersonId ? <><Typography><FaceIcon color='primary' />&nbsp;Yes</Typography></> : checkin.faceIdComplete ? <><Typography color='error'><ErrorIcon color='error' />&nbsp;No!</Typography></> : <><Typography color='primary'><CircularProgress size={24} />&nbsp;...processing...</Typography></>}
+                      {checkin.identifiedPersonId ? <><FaceIcon color='primary' />&nbsp;<Typography className={classes.icontext} component="span">Yes</Typography></> : checkin.faceIdComplete ? <><ErrorIcon color='error' />&nbsp;<Typography className={classes.icontext} component="span" color='error'>No!</Typography></> : <><CircularProgress size={24} />&nbsp;<Typography className={classes.icontext} component="span" color='primary'>...processing...</Typography></>}
                     </Grid>
                   </Grid> : null }
                   <Typography
