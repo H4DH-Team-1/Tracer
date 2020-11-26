@@ -135,7 +135,7 @@ export default function Dashboard() {
   const menuBarcodeGen = 'Barcode Gen'
 
   const classes = useStyles();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
   const [currentMenu, setCurrentMenu] = React.useState(menuCheckins);
   const handleDrawerOpen = () => {
     setOpen(true);
