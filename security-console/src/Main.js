@@ -21,14 +21,18 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Tooltip from '@material-ui/core/Tooltip';
 
 
 import SecurityIcon from '@material-ui/icons/Security';
 import PeopleIcon from '@material-ui/icons/People';
 import LinkedCameraIcon from '@material-ui/icons/LinkedCamera';
+import PrintIcon from '@material-ui/icons/Print';
+
 
 
 import Checkins from './Checkins';
+import Barcodes from './Barcodes';
 
 function Copyright() {
   return (
@@ -128,6 +132,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard() {
   const menuCheckins = 'Checkins'
   const menuSecurity = 'Security'
+  const menuBarcodeGen = 'Barcode Gen'
 
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
@@ -187,16 +192,28 @@ export default function Dashboard() {
         <Divider />
         <List>
           <ListItem button onClick={() => setCurrentMenu(menuCheckins)} selected={currentMenu === menuCheckins}>
-            <ListItemIcon>
-              <PeopleIcon />
-            </ListItemIcon>
-            <ListItemText primary='Checkins' />
+            <Tooltip title="View and manage check-ins">
+              <ListItemIcon>
+                <PeopleIcon />
+              </ListItemIcon>
+            </Tooltip>
+            <ListItemText primary='Check-ins' />
           </ListItem>
           <ListItem button onClick={() => setCurrentMenu(menuSecurity)} selected={currentMenu === menuSecurity}>
-            <ListItemIcon>
-              <LinkedCameraIcon />
-            </ListItemIcon>
+            <Tooltip title="Manage Security Cameras">
+              <ListItemIcon>
+                <LinkedCameraIcon />
+              </ListItemIcon>
+            </Tooltip>
             <ListItemText primary='Security' />
+          </ListItem>
+          <ListItem button onClick={() => setCurrentMenu(menuBarcodeGen)} selected={currentMenu === menuBarcodeGen}>
+            <Tooltip title="Generate QR Barcodes to attach to Masks">
+              <ListItemIcon>
+                <PrintIcon />
+              </ListItemIcon>
+            </Tooltip>
+            <ListItemText primary='Barcode Gen' />
           </ListItem>
         </List>
       </Drawer>
@@ -204,7 +221,7 @@ export default function Dashboard() {
         <div className={classes.appBarSpacer} />
         <Container className={classes.container}>
           <Paper>
-            { currentMenu === menuCheckins ? <Checkins /> : <div>Security!</div> }
+            { currentMenu === menuCheckins ? <Checkins /> : currentMenu === menuSecurity ? <div>Security!</div> : <Barcodes /> }
           </Paper>
           <Box pt={4}>
             <Copyright />

@@ -95,7 +95,7 @@ const Checkins = () => {
   const [open, setOpen] = React.useState(false);
   const [kiosk, setKiosk] = React.useState(false);
 
-  const classes = useStyles();
+  const classes = useStyles()
 
   useEffect(() => {
     fetchCheckins();
@@ -236,29 +236,30 @@ const Checkins = () => {
         !data.postcode ||
         !data.maskId
       ) {
-        console.log('INVALID EDIT: ' + JSON.stringify(data));
-        return;
+        console.log('INVALID EDIT: ' + JSON.stringify(data))
+        return
       }
-      const checkin = { ...data };
-      await API.graphql(graphqlOperation(updateCheckin, { input: checkin }));
-      setEditing(false);
-      setCurrentImageUrl('');
+      const checkin = { ...data }
+      await API.graphql(graphqlOperation(updateCheckin, { input: checkin }))
+      setEditing(false)
+      setCurrentImageUrl('')
     } catch (err) {
-      console.log('error saving checkin:', err);
+      console.log('error saving checkin:', err)
     }
   }
 
   async function saveDeleteCheckin(data) {
     try {
       if (!data.id) {
-        console.log('INVALID DELETE: ' + JSON.stringify(data));
-        return;
+        console.log('INVALID DELETE: ' + JSON.stringify(data))
+        return
       }
-      const checkin = { id: data.id };
-      await API.graphql(graphqlOperation(deleteCheckin, { input: checkin }));
+      const checkin = { id: data.id }
+      await API.graphql(graphqlOperation(deleteCheckin, { input: checkin }))
       //todo - figure out if we need to delete movements
-      setEditing(false);
-      setCurrentImageUrl('');
+      setEditing(false)
+      setCurrentImageUrl('')
+      handleClose()
     } catch (err) {
       console.log('error saving checkin:', err);
     }
@@ -273,22 +274,22 @@ const Checkins = () => {
         !data.postcode ||
         !data.maskId
       ) {
-        console.log('INVALID EDIT PHOTO: ' + JSON.stringify(data));
-        return;
+        console.log('INVALID EDIT PHOTO: ' + JSON.stringify(data))
+        return
       }
       if (!image) {
-        console.log('INVALID EDIT PHOTO: NO IMAGE FOUND!');
+        console.log('INVALID EDIT PHOTO: NO IMAGE FOUND!')
         return;
       }
-      const fileName = 'c-' + data.maskId + '.jpg';
+      const fileName = 'c-' + data.maskId + '.jpg'
       const base64Data = new Buffer.from(
         image.replace(/^data:image\/\w+;base64,/, ''),
         'base64'
-      );
+      )
       await Storage.put(fileName, base64Data, {
         contentType: 'image/jpeg',
         contentEncoding: 'base64',
-      });
+      })
 
       const checkin = { ...data };
       //Clear out the unknowns so the background process updates them
@@ -299,12 +300,13 @@ const Checkins = () => {
         bucket: awsExports.aws_user_files_s3_bucket,
         region: awsExports.aws_user_files_s3_bucket_region,
         key: fileName,
-      };
-      await API.graphql(graphqlOperation(updateCheckin, { input: checkin }));
-      setEditing(false);
-      setCurrentImageUrl('');
+      }
+      await API.graphql(graphqlOperation(updateCheckin, { input: checkin }))
+      setEditing(false)
+      setCurrentImageUrl('')
+      handleClose()
     } catch (err) {
-      console.log('error saving checkin:', err);
+      console.log('error saving checkin:', err)
     }
   }
 
