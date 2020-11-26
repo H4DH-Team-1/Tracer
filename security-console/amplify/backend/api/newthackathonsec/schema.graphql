@@ -6,6 +6,7 @@ type Checkin @model {
   maskId: String!
   photo: S3Object
   identifiedPersonId: String
+  faceIdComplete: Boolean
   movements: [Movement] @connection(keyName: "movement", fields: ["id"])
 }
 

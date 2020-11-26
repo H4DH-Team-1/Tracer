@@ -28,20 +28,31 @@ exports.handler = async function(event, context) {
   const key = event.Records[0].s3.object.key //eslint-disable-line
   console.log(`Bucket: ${bucket}`, `Key: ${key}`)
 
- 
   //Start of the procedural process:
   await ensureCollectionExists()
   const faceIds = await findFaces(bucket, key)
   
-  await asyncForEach(faceIds, async (faceId) => {
-    if (key.startsWith('public/c-'))
+  if (faceIds.length <= 0)
+  {
+    if (isCheckin(key))
     {
-      var checkinId = key.replace('public/c-', '').replace('.jpg', '')
-      console.log(`Processing checkin '${checkinId}' with face '${faceId}'`)
-      await attachFaceToCheckin(checkinId, faceId)
-      console.log(`Processsed!'`)
+      const checkinId = getCheckinId(key)
+      console.log(`Processing checkin '${checkinId}' - NO FACES DETECTED!`)
+      await attachFaceToCheckin(checkinId, '') //clear out the faceid
     }
-  })
+  }
+  else
+  {
+    await asyncForEach(faceIds, async (faceId) => {
+      if (isCheckin(key))
+      {
+        const checkinId = getCheckinId(key)
+        console.log(`Processing checkin '${checkinId}' with face '${faceId}'`)
+        await attachFaceToCheckin(checkinId, faceId)
+        console.log(`Processsed!'`)
+      }
+    })
+  }
   //todo: if 'c' - find the checkin and update it (graphql mutation)
   //otherwise, try create a 'movement', search for faces (graphql filter) and attach the movement
 
@@ -83,10 +94,11 @@ const attachFaceToCheckin = async (checkinId, faceId) => {
     const graphQlResp = await fetchGraphQl({
       query: `
       mutation UpdateIdentifiedPerson {
-        updateCheckin(input: {id: "${checkinId}", identifiedPersonId: "${faceId}"}) {
+        updateCheckin(input: {id: "${checkinId}", identifiedPersonId: "${faceId}", faceIdComplete: true}) {
           createdAt
           id
           identifiedPersonId
+          faceIdComplete
           maskId
           name
           phone
@@ -112,6 +124,14 @@ const attachFaceToCheckin = async (checkinId, faceId) => {
   }
   
   console.log('Finished attachFaceToCheckin...')
+}
+
+const isCheckin = (key) => {
+  return key.startsWith('public/c-');
+}
+
+const getCheckinId = (key) => {
+  return key.replace('public/c-', '').replace('.jpg', '')
 }
 
 //https://codeburst.io/javascript-async-await-with-foreach-b6ba62bbf404

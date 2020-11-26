@@ -15,6 +15,7 @@ export const getCheckin = /* GraphQL */ `
         key
       }
       identifiedPersonId
+      faceIdComplete
       movements {
         items {
           id
@@ -50,6 +51,7 @@ export const listCheckins = /* GraphQL */ `
           key
         }
         identifiedPersonId
+        faceIdComplete
         movements {
           nextToken
         }
@@ -84,6 +86,7 @@ export const getMovement = /* GraphQL */ `
           key
         }
         identifiedPersonId
+        faceIdComplete
         movements {
           nextToken
         }
@@ -119,6 +122,7 @@ export const listMovements = /* GraphQL */ `
           postcode
           maskId
           identifiedPersonId
+          faceIdComplete
           createdAt
           updatedAt
         }

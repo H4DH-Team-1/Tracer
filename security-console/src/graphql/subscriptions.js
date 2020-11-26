@@ -15,6 +15,7 @@ export const onCreateCheckin = /* GraphQL */ `
         key
       }
       identifiedPersonId
+      faceIdComplete
       movements {
         items {
           id
@@ -45,6 +46,7 @@ export const onUpdateCheckin = /* GraphQL */ `
         key
       }
       identifiedPersonId
+      faceIdComplete
       movements {
         items {
           id
@@ -75,6 +77,7 @@ export const onDeleteCheckin = /* GraphQL */ `
         key
       }
       identifiedPersonId
+      faceIdComplete
       movements {
         items {
           id
@@ -115,6 +118,7 @@ export const onCreateMovement = /* GraphQL */ `
           key
         }
         identifiedPersonId
+        faceIdComplete
         movements {
           nextToken
         }
@@ -150,6 +154,7 @@ export const onUpdateMovement = /* GraphQL */ `
           key
         }
         identifiedPersonId
+        faceIdComplete
         movements {
           nextToken
         }
@@ -185,6 +190,7 @@ export const onDeleteMovement = /* GraphQL */ `
           key
         }
         identifiedPersonId
+        faceIdComplete
         movements {
           nextToken
         }

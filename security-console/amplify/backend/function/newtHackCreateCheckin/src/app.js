@@ -101,6 +101,7 @@ app.post('/checkin', async function(req, res) {
               key
             }
             identifiedPersonId
+            faceIdComplete
             movements {
               items {
                 id

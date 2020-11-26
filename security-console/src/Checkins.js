@@ -33,8 +33,16 @@ import Modal from '@material-ui/core/Modal';
 import Fade from '@material-ui/core/Fade';
 import Divider from '@material-ui/core/Divider';
 import Switch from '@material-ui/core/Switch';
+import Paper from '@material-ui/core/Paper';
 import EditIcon from '@material-ui/icons/Edit';
 import AddAPhotoIcon from '@material-ui/icons/AddAPhoto';
+import FaceIcon from '@material-ui/icons/Face';
+import ErrorIcon from '@material-ui/icons/Error';
+import PhotoIcon from '@material-ui/icons/Photo';
+import HouseIcon from '@material-ui/icons/House';
+import PhoneIcon from '@material-ui/icons/Phone';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -283,6 +291,10 @@ const Checkins = () => {
       });
 
       const checkin = { ...data };
+      //Clear out the unknowns so the background process updates them
+      checkin.faceIdComplete = false
+      checkin.identifiedPersonId = ''
+
       checkin.photo = {
         bucket: awsExports.aws_user_files_s3_bucket,
         region: awsExports.aws_user_files_s3_bucket_region,
@@ -303,9 +315,11 @@ const Checkins = () => {
   return (
     <Grid container spacing={3}>
       <Grid item xs={kiosk ? 6 : 10}>
-        <Typography variant='h4' component='h1'>
-          Active Check-ins
-        </Typography>
+        <Paper elevation={0}>
+          <Typography variant='h4' component='h1'>
+            &nbsp;Active Check-ins
+          </Typography>
+        </Paper>
         <List>
           {checkins.sort(makeComparator('name')).map((checkin, index) => (
             <ListItem
@@ -316,18 +330,39 @@ const Checkins = () => {
                   <Typography variant='h5' component='h2'>
                     {checkin.name}
                   </Typography>
-                  <Typography variant='body2' component='p'>
-                    <pre>
-                      Phone: {checkin.phone}
-                      <br />
-                      Postcode: {checkin.postcode}
-                      <br />
-                      Has Photo? {checkin.photo ? 'Yes' : 'No'}
-                      <br />
-                      Face Id? {checkin.identifiedPersonId ? 'Yes' : 'No'}
-                      <br />
-                    </pre>
-                  </Typography>
+                  <Grid container>
+                    <Grid item xs={4} align='right'>
+                      <Typography>Phone<MoreVertIcon />&nbsp;</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                    <Typography><PhoneIcon />&nbsp;{checkin.phone}</Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid container>
+                    <Grid item xs={4} align='right'>
+                      <Typography>Postcode<MoreVertIcon />&nbsp;</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                    <Typography><HouseIcon />&nbsp;{checkin.postcode}</Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid container>
+                    <Grid item xs={4} align='right'>
+                      <Typography>Photo taken<MoreVertIcon />&nbsp;</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      {checkin.photo ? <><Typography><PhotoIcon color='primary' />&nbsp;Yes</Typography></> : <><Typography color='error'><ErrorIcon color='error' />&nbsp;No!</Typography></> }
+                    </Grid>
+                  </Grid>
+                  { checkin.photo ?
+                  <Grid container>
+                    <Grid item xs={4} align='right'>
+                      <Typography>Face Detected<MoreVertIcon />&nbsp;</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      {checkin.identifiedPersonId ? <><Typography><FaceIcon color='primary' />&nbsp;Yes</Typography></> : checkin.faceIdComplete ? <><Typography color='error'><ErrorIcon color='error' />&nbsp;No!</Typography></> : <><Typography color='primary'><CircularProgress size={24} />&nbsp;...processing...</Typography></>}
+                    </Grid>
+                  </Grid> : null }
                   <Typography
                     className={classes.title}
                     color='textSecondary'
@@ -340,13 +375,13 @@ const Checkins = () => {
                     size='small'
                     variant='outlined'
                     onClick={() => prepareEditCheckin(checkin, true)}>
-                    <EditIcon /> Edit
+                    <EditIcon />&nbsp;Edit
                   </Button>
                   <Button
                     size='small'
                     variant='outlined'
                     onClick={() => prepareEditCheckin(checkin, false)}>
-                    <AddAPhotoIcon /> Change Photo
+                    <AddAPhotoIcon />&nbsp;Change Photo
                   </Button>
                 </CardActions>
               </Card>
@@ -375,7 +410,7 @@ const Checkins = () => {
               <Typography variant='caption' display='block' gutterBottom>
                 ({currentCheckin.id})
               </Typography>
-              {currentImageUrl ? <img src={currentImageUrl} /> : '(No image)'}
+              { currentImageUrl ? <><img src={currentImageUrl} /><Divider /></> : null }
               { editModeData ? <EditCheckin
                 editing={editing}
                 setEditing={setEditing}
