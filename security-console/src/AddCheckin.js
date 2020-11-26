@@ -1,10 +1,24 @@
 /* src/App.js */
 import React, { useState } from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import FormGroup from '@material-ui/core/FormGroup'
+import TextField from '@material-ui/core/TextField'
+import AddIcon from '@material-ui/icons/Add'
+import Button from '@material-ui/core/Button'
+import Paper from '@material-ui/core/Paper'
 
 const initialState = { name: '', phone: '', postcode: '', maskId: '' }
 
+const useStyles = makeStyles((theme) => ({
+  container: {
+    padding: 10,
+  },
+}))
+
 const App = (props) => {
   const [formState, setFormState] = useState(initialState)
+
+  const classes = useStyles()
 
   function setInput(key, value) {
     setFormState({ ...formState, [key]: value })
@@ -17,45 +31,33 @@ const App = (props) => {
   }
 
   return (
-    <div>
-      <input
-        onChange={event => setInput('name', event.target.value)}
-        style={styles.input}
-        value={formState.name}
-        placeholder="Name"
-      />
-      <input
-        onChange={event => setInput('phone', event.target.value)}
-        style={styles.input}
-        value={formState.phone}
-        placeholder="Phone"
-      />
-      <input
-        onChange={event => setInput('postcode', event.target.value)}
-        style={styles.input}
-        value={formState.postcode}
-        placeholder="Postcode"
-      />
-      <input
-        onChange={event => setInput('maskId', event.target.value)}
-        style={styles.input}
-        value={formState.maskId}
-        placeholder="Mask ID"
-      />
-      <br />
-      <button style={styles.buttonSave} onClick={callSaveAddCheckin} disabled={!formState.name || !formState.phone || !formState.postcode || !formState.maskId}>Create Checkin</button>
-    </div>
+    <Paper elevation={3} className={classes.container}>
+      <FormGroup>
+        <TextField
+          onChange={event => setInput('name', event.target.value)}
+          value={formState.name}
+          label="Name"
+        /><br />
+        <TextField
+          onChange={event => setInput('phone', event.target.value)}
+          value={formState.phone}
+          label="Phone"
+        /><br />
+        <TextField
+          onChange={event => setInput('postcode', event.target.value)}
+          value={formState.postcode}
+          label="Postcode"
+        /><br />
+        <TextField
+          onChange={event => setInput('maskId', event.target.value)}
+          value={formState.maskId}
+          label="Mask ID"
+        />
+        <br />
+        <Button size='small' variant="contained" color="primary" fullWidth={false} onClick={callSaveAddCheckin} disabled={!formState.name || !formState.phone || !formState.postcode || !formState.maskId}><AddIcon /> Create Checkin</Button>
+      </FormGroup>
+    </Paper>
   )
-}
-
-const styles = {
-  container: { width: 400, margin: '0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 20 },
-  checkin: {  marginBottom: 15, border: '2px solid black', padding: '5px' },
-  input: { border: 'none', backgroundColor: '#ddd', marginBottom: 10, padding: 8, fontSize: 18 },
-  checkinName: { fontSize: 20, fontWeight: 'bold' },
-  checkinDescription: { marginBottom: 0, fontFamily: 'monospace' },
-  buttonAddEdit: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '5px' },
-  buttonSave: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '5px' }
 }
 
 export default App
