@@ -173,6 +173,11 @@ const App = () => {
       }
       const checkin = { id: data.id }
       await API.graphql(graphqlOperation(deleteCheckin, {input: checkin}))
+      if (data.photo && data.photo.key)
+      {
+        await Storage.remove(data.photo.key)
+      }
+      //todo - figure out if we need to delete movements and their photos separately
       setEditing(false)
       setCurrentImageUrl('')
     } catch (err) {

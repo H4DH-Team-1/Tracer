@@ -61,11 +61,11 @@ app.post('/checkin', async function(req, res) {
       const s3Res = await s3.putObject(params).promise()
       console.log('Response from S3', s3Res)
       
-      const fetch = createApolloFetch({
+      const fetchGraphQl = createApolloFetch({
         uri: config.aws_appsync_graphqlEndpoint,
       });
 
-      fetch.use(({ request, options }, next) => {
+      fetchGraphQl.use(({ request, options }, next) => {
         if (!options.headers) {
           options.headers = {};
         }
@@ -75,7 +75,7 @@ app.post('/checkin', async function(req, res) {
       });
 
       //LEARNING: Fixed Dis!! Talk about the return items
-      const graphQlResp = await fetch({
+      const graphQlResp = await fetchGraphQl({
         query: `
         mutation CreateBasicCheckin {
           createCheckin(input: {
