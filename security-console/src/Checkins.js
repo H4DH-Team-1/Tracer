@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { API, graphqlOperation } from 'aws-amplify';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import Storage from '@aws-amplify/storage';
-import { listCheckins } from './graphql/queries';
+import { listCheckins, listMovements } from './graphql/queries';
 import AddCheckin from './AddCheckin';
 import EditCheckin from './EditCheckin';
 import {
@@ -45,6 +45,8 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import AvTimerIcon from '@material-ui/icons/AvTimer';
 import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import RoomIcon from '@material-ui/icons/Room';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -81,6 +83,15 @@ const useStyles = makeStyles((theme) => ({
     verticalAlign: 'top',
     marginBottom: 6,
   },
+  movements: {
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+    minWidth: 600,
+    height: 600,
+    overflow: 'scroll'
+  },
 }));
 
 const initialState = {
@@ -102,6 +113,7 @@ const Checkins = () => {
   const [openMovement, setOpenMovement] = React.useState(false);
   const [kiosk, setKiosk] = React.useState(false);
   const [currentDate, setCurrentDate] = React.useState(new Date());
+  const [currentMovements, setCurrentMovements] = useState();
 
   const classes = useStyles();
 
@@ -212,6 +224,19 @@ const Checkins = () => {
     }
   }
 
+  async function fetchMovements(checkinId) {
+    try {
+      const filter = {
+        checkinID: { eq: checkinId }
+      };
+      const movementData = await API.graphql({ query: listMovements, variables: { filter: filter}});
+      const retrievedMovements = movementData.data.listMovements.items;
+      setCurrentMovements(retrievedMovements);
+    } catch (err) {
+      console.log('error fetching movements');
+    }
+  }
+
   async function saveAddCheckin(data) {
     try {
       if (!data.name || !data.phone || !data.postcode || !data.maskId) {
@@ -253,8 +278,8 @@ const Checkins = () => {
   }
 
   async function viewMovements(checkin) {
-    //TODO: Grab em
-    console.log('Movements!', checkin);
+    const checkinId = checkin.id;
+    await fetchMovements(checkinId);
     setOpenMovement(true);
   }
 
@@ -494,13 +519,38 @@ const Checkins = () => {
             timeout: 500,
           }}>
           <Fade in={openMovement}>
-            <div className={classes.paper}>
+            <div className={classes.movements}>
               <Typography variant='h4' component='h2'>
                 Movements:
               </Typography>
-              <Typography variant='caption' display='block' gutterBottom>
-                ({currentCheckin.id})
-              </Typography>
+              <List>
+                {currentMovements.sort(makeComparator('createdAt')).map((movement, index) => (
+                  <ListItem
+                    alignItems='flex-start'
+                    key={movement.id ? movement.id : index}>
+                    <Card className={classes.card}>
+                      <CardContent>
+                        <Grid container>
+                          <Grid item xs={4} align='right'>
+                            <Typography className={classes.icontext} component="span">Detected at</Typography><MoreVertIcon />&nbsp;
+                          </Grid>
+                          <Grid item xs={8}>
+                            <ScheduleIcon />&nbsp;<Typography className={classes.icontext} component="span">{new Date(movement.createdAt).toLocaleString()}</Typography>
+                          </Grid>
+                        </Grid>
+                        <Grid container>
+                          <Grid item xs={4} align='right'>
+                            <Typography className={classes.icontext} component="span">Location</Typography><MoreVertIcon />&nbsp;
+                          </Grid>
+                          <Grid item xs={8}>
+                            <RoomIcon />&nbsp;<Typography className={classes.icontext} component="span">{movement.location}</Typography>
+                          </Grid>
+                        </Grid>
+                      </CardContent>
+                    </Card>
+                  </ListItem>
+                ))}
+              </List>
             </div>
           </Fade>
         </Modal>
