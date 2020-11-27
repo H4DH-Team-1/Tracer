@@ -23,8 +23,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const videoConstraints = {
-  width: 400,
-  height: 400,
+  width: 600,
   facingMode: 'user',
 };
 
@@ -87,7 +86,6 @@ const SecurityCamera = () => {
               </Select>
               <Webcam
                 audio={false}
-                height={videoConstraints.height}
                 ref={webcamRef}
                 screenshotFormat='image/jpeg'
                 width={videoConstraints.width}
@@ -108,7 +106,7 @@ const SecurityCamera = () => {
             { image ? (
             <>
               <FormGroup>
-                <img width={videoConstraints.width} height={videoConstraints.height} src={image} />
+                <img width={videoConstraints.width} src={image} />
               </FormGroup>
               <ButtonGroup>
                 <Button

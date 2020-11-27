@@ -427,7 +427,8 @@ const Checkins = () => {
                   <Button
                     size='small'
                     variant='outlined'
-                    onClick={() => prepareEditCheckin(checkin, false)}>
+                    onClick={() => prepareEditCheckin(checkin, false)}
+                    disabled={checkin.identifiedPersonId}>
                     <AddAPhotoIcon />&nbsp;Change Photo
                   </Button>
                   <Button
@@ -463,14 +464,16 @@ const Checkins = () => {
               <Typography variant='caption' display='block' gutterBottom>
                 ({currentCheckin.id})
               </Typography>
+              { editModeData ? 
+              <>
               { currentImageUrl ? <><img src={currentImageUrl} /><Divider /></> : null }
-              { editModeData ? <EditCheckin
+              <EditCheckin
                 editing={editing}
                 setEditing={setEditing}
                 formState={currentCheckin}
                 saveEditCheckin={saveEditCheckin}
                 saveDeleteCheckin={saveDeleteCheckin}
-              /> : null }
+              /></> : null }
               { !editModeData ? <Camera
                 data={currentCheckin}
                 callPhotoCapturedFunc={saveEditCheckinPhoto}></Camera> : null }

@@ -4,8 +4,8 @@ import Button from '@material-ui/core/Button';
 import PhotoCamera from '@material-ui/icons/PhotoCamera';
 
 const videoConstraints = {
-  width: 400,
-  height: 400,
+  width: 600,
+  height: 600,
   facingMode: 'user',
 };
 
