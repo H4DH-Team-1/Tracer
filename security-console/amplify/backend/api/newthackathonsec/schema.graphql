@@ -15,6 +15,7 @@ type Movement @model @key(name: "movement", fields: ["checkinID"]) {
   location: String!
   photo: S3Object!
   identifiedPersonId: String
+  faceMaskConfidence: Float
   checkinID: ID!
   checkin: Checkin @connection(fields: ["checkinID"])
 }

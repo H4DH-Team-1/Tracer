@@ -64,7 +64,11 @@ exports.handler = async function (event, context) {
     if (faceId)
     {
       const checkinIdForFace = await findCheckinForFace(faceId);
-      await attachMovementForCheckin(checkinIdForFace, faceId, location, bucket, key);
+      let faceMaskConfidence = await getPpeConfidence(bucket, key);
+      if (faceMaskConfidence == null){
+        faceMaskConfidence = 0.01;
+      }
+      await attachMovementForCheckin(checkinIdForFace, faceId, location, bucket, key, faceMaskConfidence);
     }
 
   }
@@ -145,6 +149,45 @@ const getFaceOnMovement = async (bucket, key) => {
   return faceIds.length > 0 ? faceIds[0] : null;
 };
 
+const getPpeConfidence = async (bucket, key) => {
+  console.log('Starting getPpeConfidence...');
+  const ppe = await rekognition
+    .detectProtectiveEquipment({
+      SummarizationAttributes: {
+        MinConfidence: 70,
+        RequiredEquipmentTypes: [ 
+          "FACE_COVER"
+        ]
+      },
+      Image: {
+        S3Object: {
+          Bucket: bucket,
+          Name: key,
+        },
+      },
+    })
+    .promise();
+  console.log('Got PPE response', JSON.stringify(ppe));
+  let confidence = 0.01;
+  if (ppe.Persons && ppe.Persons.length > 0){
+    if (ppe.Persons[0].BodyParts && ppe.Persons[0].BodyParts.length > 0)
+    {
+      ppe.Persons[0].BodyParts.forEach(p => {
+        if (p.Name === "FACE") {
+          p.EquipmentDetections.forEach(d => {
+            if (d.Type === "FACE_COVER"){
+              console.log(`Found face cover confidence`, d.Confidence);
+              confidence = d.Confidence;
+            }
+          });
+          
+        }
+      });
+    }
+  }
+  return confidence;
+};
+
 const attachFaceToCheckin = async (checkinId, faceId) => {
   console.log('Starting attachFaceToCheckin...');
   try {
@@ -216,13 +259,13 @@ const findCheckinForFace = async (faceId) => {
   console.log('Finished findCheckinForFace...');
 };
 
-const attachMovementForCheckin = async (checkinId, faceId, location, bucket, key) => {
+const attachMovementForCheckin = async (checkinId, faceId, location, bucket, key, faceMaskConfidence) => {
   console.log('Starting attachFaceToCheckin...');
   try {
     const graphQlResp = await fetchGraphQl({
       query: `
       mutation CreateMovementForCheckin {
-        createMovement(input: {checkinID: "${checkinId}", identifiedPersonId: "${faceId}", location: "${location}", photo: {bucket: "${bucket}", key: "${key}", region: "${config.aws_user_files_s3_bucket_region}"}}) {
+        createMovement(input: {checkinID: "${checkinId}", identifiedPersonId: "${faceId}", location: "${location}", faceMaskConfidence: ${faceMaskConfidence}, photo: {bucket: "${bucket}", key: "${key}", region: "${config.aws_user_files_s3_bucket_region}"}}) {
           id
         }
       }

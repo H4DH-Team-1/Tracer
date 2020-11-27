@@ -21,6 +21,7 @@ export const getCheckin = /* GraphQL */ `
           id
           location
           identifiedPersonId
+          faceMaskConfidence
           checkinID
           createdAt
           updatedAt
@@ -73,6 +74,7 @@ export const getMovement = /* GraphQL */ `
         key
       }
       identifiedPersonId
+      faceMaskConfidence
       checkinID
       checkin {
         id
@@ -114,6 +116,7 @@ export const listMovements = /* GraphQL */ `
           key
         }
         identifiedPersonId
+        faceMaskConfidence
         checkinID
         checkin {
           id

@@ -47,6 +47,8 @@ import AvTimerIcon from '@material-ui/icons/AvTimer';
 import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import RoomIcon from '@material-ui/icons/Room';
+import HealingIcon from '@material-ui/icons/Healing';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -544,6 +546,14 @@ const Checkins = () => {
                           </Grid>
                           <Grid item xs={8}>
                             <RoomIcon />&nbsp;<Typography className={classes.icontext} component="span">{movement.location}</Typography>
+                          </Grid>
+                        </Grid>
+                        <Grid container>
+                          <Grid item xs={4} align='right'>
+                            <Typography className={classes.icontext} component="span">Mask On?</Typography><MoreVertIcon />&nbsp;
+                          </Grid>
+                          <Grid item xs={8}>
+                            { movement.faceMaskConfidence ? <><HealingIcon color={movement.faceMaskConfidence < 99 ? 'error' : 'default'} />&nbsp;<Typography className={classes.icontext} component="span">{movement.faceMaskConfidence.toFixed(2)}%</Typography></> : <HelpOutlineIcon /> }
                           </Grid>
                         </Grid>
                       </CardContent>

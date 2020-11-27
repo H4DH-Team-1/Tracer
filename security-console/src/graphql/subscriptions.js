@@ -21,6 +21,7 @@ export const onCreateCheckin = /* GraphQL */ `
           id
           location
           identifiedPersonId
+          faceMaskConfidence
           checkinID
           createdAt
           updatedAt
@@ -52,6 +53,7 @@ export const onUpdateCheckin = /* GraphQL */ `
           id
           location
           identifiedPersonId
+          faceMaskConfidence
           checkinID
           createdAt
           updatedAt
@@ -83,6 +85,7 @@ export const onDeleteCheckin = /* GraphQL */ `
           id
           location
           identifiedPersonId
+          faceMaskConfidence
           checkinID
           createdAt
           updatedAt
@@ -105,6 +108,7 @@ export const onCreateMovement = /* GraphQL */ `
         key
       }
       identifiedPersonId
+      faceMaskConfidence
       checkinID
       checkin {
         id
@@ -141,6 +145,7 @@ export const onUpdateMovement = /* GraphQL */ `
         key
       }
       identifiedPersonId
+      faceMaskConfidence
       checkinID
       checkin {
         id
@@ -177,6 +182,7 @@ export const onDeleteMovement = /* GraphQL */ `
         key
       }
       identifiedPersonId
+      faceMaskConfidence
       checkinID
       checkin {
         id
