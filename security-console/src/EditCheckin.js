@@ -1,31 +1,29 @@
 /* src/App.js */
-import React, { useState, useEffect } from 'react'
-import FormGroup from '@material-ui/core/FormGroup'
-import ButtonGroup from '@material-ui/core/ButtonGroup'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-
-const initialState = { name: '', phone: '', postcode: '', maskId: '' }
+import React, { useState, useEffect } from 'react';
+import FormGroup from '@material-ui/core/FormGroup';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 
 const App = (props) => {
-  const [formState, setFormState] = useState(props.formState)
+  const [formState, setFormState] = useState(props.formState);
 
   useEffect(() => { 
-    setFormState(props.formState)
-  }, [props])
+    setFormState(props.formState);
+  }, [props]);
 
   function setInput(key, value) {
-    setFormState({ ...formState, [key]: value })
+    setFormState({ ...formState, [key]: value });
   }
 
   function callSaveEditCheckin()
   {
-    props.saveEditCheckin(formState)
+    props.saveEditCheckin(formState);
   }
 
   function callSaveDeleteCheckin()
   {
-    props.saveDeleteCheckin(formState)
+    props.saveDeleteCheckin(formState);
   }
 
   return (
@@ -53,8 +51,8 @@ const App = (props) => {
         <Button size='small' variant="contained" color="secondary" onClick={() => callSaveDeleteCheckin()}>DELETE</Button>
       </ButtonGroup>
     </>
-  )
-}
+  );
+};
 
 
-export default App
+export default App;

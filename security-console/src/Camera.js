@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import Webcam from 'react-webcam'
-import Button from '@material-ui/core/Button'
-import PhotoCamera from '@material-ui/icons/PhotoCamera'
+import React from 'react';
+import Webcam from 'react-webcam';
+import Button from '@material-ui/core/Button';
+import PhotoCamera from '@material-ui/icons/PhotoCamera';
 
 const videoConstraints = {
   width: 400,

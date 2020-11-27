@@ -1,9 +1,9 @@
 /* src/App.js */
 import React, { useEffect, useState } from 'react';
-import Amplify, { API, graphqlOperation } from 'aws-amplify';
+import { API, graphqlOperation } from 'aws-amplify';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import Storage from '@aws-amplify/storage';
-import { listCheckins, getCheckin } from './graphql/queries';
+import { listCheckins } from './graphql/queries';
 import AddCheckin from './AddCheckin';
 import EditCheckin from './EditCheckin';
 import {
@@ -101,7 +101,7 @@ const Checkins = () => {
   const [kiosk, setKiosk] = React.useState(false);
   const [currentDate, setCurrentDate] = React.useState(new Date());
 
-  const classes = useStyles()
+  const classes = useStyles();
 
   useEffect(() => {
     fetchCheckins();
@@ -110,7 +110,7 @@ const Checkins = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       //Refresh every minute for expiry
-      setCurrentDate(new Date())
+      setCurrentDate(new Date());
     }, 1000*60);
     return () => clearInterval(interval);
   }, []);
@@ -177,27 +177,28 @@ const Checkins = () => {
 
   function makeComparator(key, order = 'asc') {
     return (a, b) => {
+      // eslint-disable-next-line
       if (!a || !b || !a.hasOwnProperty(key) || !b.hasOwnProperty(key))
-        return 0
+        return 0;
 
-      const aVal = typeof a[key] === 'string' ? a[key].toUpperCase() : a[key]
-      const bVal = typeof b[key] === 'string' ? b[key].toUpperCase() : b[key]
+      const aVal = typeof a[key] === 'string' ? a[key].toUpperCase() : a[key];
+      const bVal = typeof b[key] === 'string' ? b[key].toUpperCase() : b[key];
 
-      let comparison = 0
-      if (aVal > bVal) comparison = 1
-      if (aVal < bVal) comparison = -1
+      let comparison = 0;
+      if (aVal > bVal) comparison = 1;
+      if (aVal < bVal) comparison = -1;
 
-      return order === 'desc' ? comparison * -1 : comparison
-    }
+      return order === 'desc' ? comparison * -1 : comparison;
+    };
   }
 
   const calculateExpiryMinutes = (maskCreatedAt) => {
-    const createdDate = new Date(maskCreatedAt)
-    const numMinsExpiry = 180
-    var expiry = new Date(createdDate.getTime() + numMinsExpiry*60000)
-    var diffMs = (expiry - currentDate)
-    return Math.floor(diffMs / 1000 / 60)
-  }
+    const createdDate = new Date(maskCreatedAt);
+    const numMinsExpiry = 180;
+    var expiry = new Date(createdDate.getTime() + numMinsExpiry*60000);
+    var diffMs = (expiry - currentDate);
+    return Math.floor(diffMs / 1000 / 60);
+  };
 
   async function fetchCheckins() {
     try {
@@ -224,8 +225,8 @@ const Checkins = () => {
   }
 
   async function prepareEditCheckin(checkin, isDataEdit) {
-    setEditing(true)
-    setEditModeData(isDataEdit)
+    setEditing(true);
+    setEditModeData(isDataEdit);
     const fullCheckin = checkin; //(await API.graphql(graphqlOperation(getCheckin, {id: checkin.id}))).data.getCheckin
     setCurrentCheckin({
       id: fullCheckin.id,
@@ -233,17 +234,17 @@ const Checkins = () => {
       phone: fullCheckin.phone,
       postcode: fullCheckin.postcode,
       maskId: fullCheckin.maskId,
-    })
+    });
     if (fullCheckin.photo && fullCheckin.photo.key) {
       try {
-        const imageUrl = await Storage.get(fullCheckin.photo.key)
+        const imageUrl = await Storage.get(fullCheckin.photo.key);
         if (imageUrl) {
-          setCurrentImageUrl(imageUrl)
+          setCurrentImageUrl(imageUrl);
         } else {
-          setCurrentImageUrl('')
+          setCurrentImageUrl('');
         }
       } catch (err) {
-        console.log('error retrieving image:', err)
+        console.log('error retrieving image:', err);
       }
     }
     setOpen(true);
@@ -258,30 +259,30 @@ const Checkins = () => {
         !data.postcode ||
         !data.maskId
       ) {
-        console.log('INVALID EDIT: ' + JSON.stringify(data))
-        return
+        console.log('INVALID EDIT: ' + JSON.stringify(data));
+        return;
       }
-      const checkin = { ...data }
-      await API.graphql(graphqlOperation(updateCheckin, { input: checkin }))
-      setEditing(false)
-      setCurrentImageUrl('')
+      const checkin = { ...data };
+      await API.graphql(graphqlOperation(updateCheckin, { input: checkin }));
+      setEditing(false);
+      setCurrentImageUrl('');
     } catch (err) {
-      console.log('error saving checkin:', err)
+      console.log('error saving checkin:', err);
     }
   }
 
   async function saveDeleteCheckin(data) {
     try {
       if (!data.id) {
-        console.log('INVALID DELETE: ' + JSON.stringify(data))
-        return
+        console.log('INVALID DELETE: ' + JSON.stringify(data));
+        return;
       }
-      const checkin = { id: data.id }
-      await API.graphql(graphqlOperation(deleteCheckin, { input: checkin }))
+      const checkin = { id: data.id };
+      await API.graphql(graphqlOperation(deleteCheckin, { input: checkin }));
       //todo - figure out if we need to delete movements
-      setEditing(false)
-      setCurrentImageUrl('')
-      handleClose()
+      setEditing(false);
+      setCurrentImageUrl('');
+      handleClose();
     } catch (err) {
       console.log('error saving checkin:', err);
     }
@@ -296,39 +297,41 @@ const Checkins = () => {
         !data.postcode ||
         !data.maskId
       ) {
-        console.log('INVALID EDIT PHOTO: ' + JSON.stringify(data))
-        return
-      }
-      if (!image) {
-        console.log('INVALID EDIT PHOTO: NO IMAGE FOUND!')
+        console.log('INVALID EDIT PHOTO: ' + JSON.stringify(data));
         return;
       }
-      const fileName = 'c-' + data.maskId + '.jpg'
+      if (!image) {
+        console.log('INVALID EDIT PHOTO: NO IMAGE FOUND!');
+        return;
+      }
+      const fileName = 'c-' + data.maskId + '.jpg';
+      
+      // eslint-disable-next-line
       const base64Data = new Buffer.from(
         image.replace(/^data:image\/\w+;base64,/, ''),
         'base64'
-      )
+      );
       await Storage.put(fileName, base64Data, {
         contentType: 'image/jpeg',
         contentEncoding: 'base64',
-      })
+      });
 
       const checkin = { ...data };
       //Clear out the unknowns so the background process updates them
-      checkin.faceIdComplete = false
-      checkin.identifiedPersonId = ''
+      checkin.faceIdComplete = false;
+      checkin.identifiedPersonId = '';
 
       checkin.photo = {
         bucket: awsExports.aws_user_files_s3_bucket,
         region: awsExports.aws_user_files_s3_bucket_region,
         key: fileName,
-      }
-      await API.graphql(graphqlOperation(updateCheckin, { input: checkin }))
-      setEditing(false)
-      setCurrentImageUrl('')
-      handleClose()
+      };
+      await API.graphql(graphqlOperation(updateCheckin, { input: checkin }));
+      setEditing(false);
+      setCurrentImageUrl('');
+      handleClose();
     } catch (err) {
-      console.log('error saving checkin:', err)
+      console.log('error saving checkin:', err);
     }
   }
 

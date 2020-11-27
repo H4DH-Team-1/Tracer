@@ -69,7 +69,7 @@
         "Timeout": "25",
         "Code": {
           "S3Bucket": "amplify-newthackathonsec-dev-111926-deployment",
-          "S3Key": "amplify-builds/newtHackCreateCheckin-554133306e4442704738-build.zip"
+          "S3Key": "amplify-builds/newtHackCreateCheckin-596968635571514f3079-build.zip"
         }
       }
     },

@@ -1,52 +1,52 @@
 /* src/App.js */
-import React, { useState } from 'react'
-import QrReader from 'react-qr-scanner'
-import { makeStyles } from '@material-ui/core/styles'
-import FormGroup from '@material-ui/core/FormGroup'
-import TextField from '@material-ui/core/TextField'
-import AddIcon from '@material-ui/icons/Add'
-import Button from '@material-ui/core/Button'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
-import Divider from '@material-ui/core/Divider'
+import React, { useState } from 'react';
+import QrReader from 'react-qr-scanner';
+import { makeStyles } from '@material-ui/core/styles';
+import FormGroup from '@material-ui/core/FormGroup';
+import TextField from '@material-ui/core/TextField';
+import AddIcon from '@material-ui/icons/Add';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
-const initialState = { name: '', phone: '', postcode: '', maskId: '' }
+const initialState = { name: '', phone: '', postcode: '', maskId: '' };
 
 const previewStyle = {
   height: 256,
   width: 256,
-}
+};
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   container: {
     padding: 10,
   },
-}))
+}));
 
 const App = (props) => {
-  const [formState, setFormState] = useState(initialState)
+  const [formState, setFormState] = useState(initialState);
 
-  const classes = useStyles()
+  const classes = useStyles();
 
   function setInput(key, value) {
-    setFormState({ ...formState, [key]: value })
+    setFormState({ ...formState, [key]: value });
   }
 
   function callSaveAddCheckin()
   {
-    props.saveAddCheckin(formState)
-    setFormState(initialState)
+    props.saveAddCheckin(formState);
+    setFormState(initialState);
   }
 
   function handleScan(data) {
     if (data)
     {
-      console.log('GotQR:', data)
-      setFormState({ ...formState, maskId: data })
+      console.log('GotQR:', data);
+      setFormState({ ...formState, maskId: data });
     }
   }
   function handleError(err) {
-    console.error(err)
+    console.error(err);
   }
 
   return (
@@ -84,7 +84,7 @@ const App = (props) => {
         <Button size='small' variant="contained" color="primary" fullWidth={false} onClick={callSaveAddCheckin} disabled={!formState.name || !formState.phone || !formState.postcode || !formState.maskId}><AddIcon /> Create Checkin</Button>
       </FormGroup>
     </Paper>
-  )
-}
+  );
+};
 
-export default App
+export default App;
