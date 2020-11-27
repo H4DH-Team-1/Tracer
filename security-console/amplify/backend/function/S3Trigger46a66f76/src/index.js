@@ -40,6 +40,10 @@ exports.handler = async function(event, context) {
       console.log(`Processing checkin '${checkinId}' - NO FACES DETECTED!`);
       await attachFaceToCheckin(checkinId, ''); //clear out the faceid
     }
+    else
+    {
+      //We don't need to do anything with failed movement images
+    }
   }
   else
   {
@@ -51,10 +55,22 @@ exports.handler = async function(event, context) {
         await attachFaceToCheckin(checkinId, faceId);
         console.log('Processsed!\'');
       }
+      else
+      {
+        const locationName = getMovementLocation(key);
+        console.log(`Processing movement at location '${locationName}' with face '${faceId}'`);
+        const checkinId = await findCheckinForFace(faceId);
+        if (checkinId)
+        {
+          console.log(`Creating Movement record for checkin id ${checkinId}'`);
+        }
+        else
+        {
+          console.log(`No checkin found for face ${faceId}'`);
+        }
+      }
     });
   }
-  //todo: if 'c' - find the checkin and update it (graphql mutation)
-  //otherwise, try create a 'movement', search for faces (graphql filter) and attach the movement
 
   context.done(null, 'Successfully processed S3 event');
 };
@@ -71,9 +87,11 @@ const ensureCollectionExists = async () => {
 };
 
 const findFaces = async (bucket, key) => {
+  console.log('Starting findFaces...');
   const faces = await rekognition.indexFaces({
     CollectionId: collectionIdForFaces, 
     DetectionAttributes: ['ALL'], 
+    QualityFilter: 'LOW',
     Image: {
       S3Object: {
       Bucket: bucket, 
@@ -126,12 +144,45 @@ const attachFaceToCheckin = async (checkinId, faceId) => {
   console.log('Finished attachFaceToCheckin...');
 };
 
+const findCheckinForFace = async (faceId) => {
+  console.log('Starting findCheckinForFace...');
+  try {
+    const graphQlResp = await fetchGraphQl({
+      query: `
+      query FindCheckinByFace {
+        listCheckins(filter: {identifiedPersonId: {eq: "${faceId}"}}) {
+          items {
+            id
+          }
+        }
+      }
+      `,
+    });
+    console.log('findCheckinForFace Response from GraphQL', graphQlResp);
+
+    if (graphQlResp && graphQlResp.data && graphQlResp.data.listCheckins && graphQlResp.data.listCheckin.items 
+      && graphQlResp.data.listCheckin.items.length > 0)
+    {
+      return graphQlResp.data.listCheckin.items[0];
+    }
+    return null;
+  } catch (error) {
+    console.log('Error graphQlResp!', error);
+  }
+  
+  console.log('Finished attachFaceToCheckin...');
+};
+
 const isCheckin = (key) => {
   return key.startsWith('public/c-');
 };
 
 const getCheckinId = (key) => {
   return key.replace('public/c-', '').replace('.jpg', '');
+};
+
+const getMovementLocation = (key) => {
+  return key.substring(0, key.indexOf('_')).replace('public/m-', '');
 };
 
 //https://codeburst.io/javascript-async-await-with-foreach-b6ba62bbf404

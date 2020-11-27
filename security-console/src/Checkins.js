@@ -44,6 +44,7 @@ import PhoneIcon from '@material-ui/icons/Phone';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import AvTimerIcon from '@material-ui/icons/AvTimer';
+import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -97,7 +98,8 @@ const Checkins = () => {
   const [checkins, setCheckins] = useState([]);
   const [currentImageUrl, setCurrentImageUrl] = useState('');
   const [forceRefresh, setForceRefresh] = useState(false); //this ended up not being required :)
-  const [open, setOpen] = React.useState(false);
+  const [openEdit, setOpenEdit] = React.useState(false);
+  const [openMovement, setOpenMovement] = React.useState(false);
   const [kiosk, setKiosk] = React.useState(false);
   const [currentDate, setCurrentDate] = React.useState(new Date());
 
@@ -247,7 +249,13 @@ const Checkins = () => {
         console.log('error retrieving image:', err);
       }
     }
-    setOpen(true);
+    setOpenEdit(true);
+  }
+
+  async function viewMovements(checkin) {
+    //TODO: Grab em
+    console.log('Movements!', checkin);
+    setOpenMovement(true);
   }
 
   async function saveEditCheckin(data) {
@@ -282,7 +290,7 @@ const Checkins = () => {
       //todo - figure out if we need to delete movements
       setEditing(false);
       setCurrentImageUrl('');
-      handleClose();
+      handleCloseEdit();
     } catch (err) {
       console.log('error saving checkin:', err);
     }
@@ -329,14 +337,18 @@ const Checkins = () => {
       await API.graphql(graphqlOperation(updateCheckin, { input: checkin }));
       setEditing(false);
       setCurrentImageUrl('');
-      handleClose();
+      handleCloseEdit();
     } catch (err) {
       console.log('error saving checkin:', err);
     }
   }
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseEdit = () => {
+    setOpenEdit(false);
+  };
+
+  const handleCloseMovement = () => {
+    setOpenMovement(false);
   };
 
   return (
@@ -418,6 +430,12 @@ const Checkins = () => {
                     onClick={() => prepareEditCheckin(checkin, false)}>
                     <AddAPhotoIcon />&nbsp;Change Photo
                   </Button>
+                  <Button
+                    size='small'
+                    variant='outlined'
+                    onClick={() => viewMovements(checkin)}>
+                    <DirectionsWalkIcon />&nbsp;View Movements
+                  </Button>
                 </CardActions>
               </Card>
             </ListItem>
@@ -430,14 +448,14 @@ const Checkins = () => {
           aria-labelledby='transition-modal-title'
           aria-describedby='transition-modal-description'
           className={classes.modal}
-          open={open}
-          onClose={handleClose}
+          open={openEdit}
+          onClose={handleCloseEdit}
           closeAfterTransition
           BackdropComponent={Backdrop}
           BackdropProps={{
             timeout: 500,
           }}>
-          <Fade in={open}>
+          <Fade in={openEdit}>
             <div className={classes.paper}>
               <Typography variant='h4' component='h2'>
                 Edit Check-in:
@@ -456,6 +474,30 @@ const Checkins = () => {
               { !editModeData ? <Camera
                 data={currentCheckin}
                 callPhotoCapturedFunc={saveEditCheckinPhoto}></Camera> : null }
+            </div>
+          </Fade>
+        </Modal>
+      ) : null}
+      {openMovement ? (
+        <Modal
+          aria-labelledby='transition-modal-title'
+          aria-describedby='transition-modal-description'
+          className={classes.modal}
+          open={openMovement}
+          onClose={handleCloseMovement}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500,
+          }}>
+          <Fade in={openMovement}>
+            <div className={classes.paper}>
+              <Typography variant='h4' component='h2'>
+                Movements:
+              </Typography>
+              <Typography variant='caption' display='block' gutterBottom>
+                ({currentCheckin.id})
+              </Typography>
             </div>
           </Fade>
         </Modal>

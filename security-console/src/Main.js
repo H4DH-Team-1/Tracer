@@ -22,15 +22,13 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Tooltip from '@material-ui/core/Tooltip';
 
-
 import SecurityIcon from '@material-ui/icons/Security';
 import PeopleIcon from '@material-ui/icons/People';
 import LinkedCameraIcon from '@material-ui/icons/LinkedCamera';
 import PrintIcon from '@material-ui/icons/Print';
 
-
-
 import Checkins from './Checkins';
+import SecurityCamera from './SecurityCamera';
 import Barcodes from './Barcodes';
 
 function Copyright() {
@@ -219,7 +217,7 @@ export default function Dashboard() {
         <div className={classes.appBarSpacer} />
         <Container className={classes.container}>
           <Paper>
-            { currentMenu === menuCheckins ? <Checkins /> : currentMenu === menuSecurity ? <div>Security!</div> : <Barcodes /> }
+            { currentMenu === menuCheckins ? <Checkins /> : currentMenu === menuSecurity ? <SecurityCamera /> : <Barcodes /> }
           </Paper>
           <Box pt={4}>
             <Copyright />
